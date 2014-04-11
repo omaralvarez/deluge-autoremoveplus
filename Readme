@@ -1,0 +1,2 @@
+Create egg with
+python setup.py bdist_egg
