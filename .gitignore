@@ -2,4 +2,4 @@
 *.swp
 build/
 dist/
-AutoRemove.egg-info/
+AutoRemovePlus.egg-info/

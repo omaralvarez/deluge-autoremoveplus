@@ -1,6 +1,7 @@
 #
 # gtkui.py
 #
+# Copyright (C) 2014 Omar Alvarez <osurfer3@hotmail.com>
 # Copyright (C) 2011 Jamie Lennox <jamielennox@gmail.com>
 #
 # Basic plugin template created by:
@@ -51,12 +52,12 @@ class GtkUI(GtkPluginBase):
     
     def enable(self):
         self.glade = gtk.glade.XML(get_resource("config.glade"))
-        component.get("Preferences").add_page("AutoRemove", self.glade.get_widget("prefs_box"))
+        component.get("Preferences").add_page("AutoRemovePlus", self.glade.get_widget("prefs_box"))
         component.get("PluginManager").register_hook("on_apply_prefs", self.on_apply_prefs)
         component.get("PluginManager").register_hook("on_show_prefs", self.on_show_prefs)
 
         self.rules = gtk.ListStore(str, str)
-        client.autoremove.get_remove_rules().addCallback(self.cb_get_rules)
+        client.autoremoveplus.get_remove_rules().addCallback(self.cb_get_rules)
 
         cell = gtk.CellRendererText()
         
@@ -72,12 +73,12 @@ class GtkUI(GtkPluginBase):
                 menu_item.set_active(False not in ignored) 
                 menu_item.handler_unblock (toggled)
 
-            client.autoremove.get_ignore([t for t in component.get("TorrentView").get_selected_torrents() ]).addCallback(set_ignored)    
+            client.autoremoveplus.get_ignore([t for t in component.get("TorrentView").get_selected_torrents() ]).addCallback(set_ignored)    
 
         def on_menu_toggled(menu):
-            client.autoremove.set_ignore(component.get("TorrentView").get_selected_torrents(), menu.get_active())
+            client.autoremoveplus.set_ignore(component.get("TorrentView").get_selected_torrents(), menu.get_active())
 
-        self.menu = gtk.CheckMenuItem(_("AutoRemove Exempt"))
+        self.menu = gtk.CheckMenuItem(_("AutoRemovePlus Exempt"))
         self.menu.show()
 
         toggled = self.menu.connect('toggled', on_menu_toggled)
@@ -89,7 +90,7 @@ class GtkUI(GtkPluginBase):
         self.on_show_prefs()
 
     def disable(self):
-        component.get("Preferences").remove_page("AutoRemove")
+        component.get("Preferences").remove_page("AutoRemovePlus")
         component.get("PluginManager").deregister_hook("on_apply_prefs", self.on_apply_prefs)
         component.get("PluginManager").deregister_hook("on_show_prefs", self.on_show_prefs)
 
@@ -102,20 +103,21 @@ class GtkUI(GtkPluginBase):
         del self.show_sig 
 
     def on_apply_prefs(self):
-        log.debug("applying prefs for AutoRemove")
+        log.debug("applying prefs for AutoRemovePlus")
 
         c = self.glade.get_widget("cbo_remove")
 
         config = {
             "max_seeds" : self.glade.get_widget("spn_seeds").get_value_as_int(),
             'filter' : c.get_model()[c.get_active_iter()][0],
-            'count_exempt' : self.glade.get_widget('chk_count').get_active()
+            'count_exempt' : self.glade.get_widget('chk_count').get_active(),
+            'remove_data' : self.glade.get_widget('chk_remove_data').get_active()
         }
 
-        client.autoremove.set_config(config)
+        client.autoremoveplus.set_config(config)
 
     def on_show_prefs(self):
-        client.autoremove.get_config().addCallback(self.cb_get_config)
+        client.autoremoveplus.get_config().addCallback(self.cb_get_config)
 
     def cb_get_rules(self, rules): 
         self.rules.clear() 
@@ -126,6 +128,7 @@ class GtkUI(GtkPluginBase):
     def cb_get_config(self, config):
         self.glade.get_widget("spn_seeds").set_value(config["max_seeds"])
         self.glade.get_widget("chk_count").set_active(config['count_exempt'])
+        self.glade.get_widget("chk_remove_data").set_active(config['remove_data'])
 
         selected = config['filter']
 
