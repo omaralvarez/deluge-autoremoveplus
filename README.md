@@ -1,0 +1,2 @@
+deluge-autoremoveplus
+=====================
