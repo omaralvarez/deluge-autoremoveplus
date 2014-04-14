@@ -140,6 +140,7 @@ class GtkUI(GtkPluginBase):
             'filter' : c.get_model()[c.get_active_iter()][0],
             'count_exempt' : self.glade.get_widget('chk_count').get_active(),
             'remove_data' : self.glade.get_widget('chk_remove_data').get_active()
+            #'trackers' : self.glade.get_widget('chk_remove_data').get_active()
         }
 
         client.autoremoveplus.set_config(config)
@@ -157,7 +158,9 @@ class GtkUI(GtkPluginBase):
         self.glade.get_widget("spn_seeds").set_value(config["max_seeds"])
         self.glade.get_widget("chk_count").set_active(config['count_exempt'])
         self.glade.get_widget("chk_remove_data").set_active(config['remove_data'])
-
+        trackers = config['trackers']
+        for tracker in trackers:
+            log.debug("Tracker: %s" % (tracker))
         selected = config['filter']
 
         for i, row in enumerate(self.rules): 
