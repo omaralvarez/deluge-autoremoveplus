@@ -65,6 +65,20 @@ class GtkUI(GtkPluginBase):
         cbo_remove.pack_start(cell, True)
         cbo_remove.add_attribute(cell, 'text', 1)
         cbo_remove.set_model(self.rules)
+        
+        self._new_tracker = self.glade.get_widget("new_tracker")
+        self._new_tracker.connect("clicked", self._do_new_tracker)
+        self._delete_tracker = self.glade.get_widget("delete_tracker")
+        self._delete_tracker.connect("clicked", self._do_delete_tracker)
+        
+        self._blk_trackers = self.glade.get_widget("blk_trackers")
+        self._view = self._build_view()
+        window = gtk.ScrolledWindow()
+        window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        window.set_shadow_type(gtk.SHADOW_IN)
+        window.add(self._view)
+        self._blk_trackers.add(window)
+        self._blk_trackers.show_all()
 
         def on_menu_show(menu, (menu_item, toggled)): 
             def set_ignored(ignored): 
@@ -102,6 +116,20 @@ class GtkUI(GtkPluginBase):
         del self.menu 
         del self.show_sig 
 
+    def _do_new_tracker(self,button):
+        new_row = self.lstore.append(["New Tracker"])
+        #self._view.set_cursor("3", start_editing=True)
+        path = self.lstore.get_path(new_row)
+        self._view.set_cursor(path, focus_column=self._view.get_column(0), start_editing=True)
+        
+    def _do_delete_tracker(self,button):
+        selection = self._view.get_selection()
+        model, paths = selection.get_selected_rows()
+        
+        for path in paths:
+            iter = model.get_iter(path)
+            model.remove(iter)
+        
     def on_apply_prefs(self):
         log.debug("applying prefs for AutoRemovePlus")
 
@@ -139,3 +167,22 @@ class GtkUI(GtkPluginBase):
         else:
             self.glade.get_widget("cbo_remove").set_active(0)
 
+    def _build_view(self):
+
+		self.lstore = gtk.ListStore(str)
+		self.lstore.append(["scenehd.com"])
+		self.lstore.append(["torrentleech.com"])
+		view = gtk.TreeView(model = self.lstore)
+		cr = gtk.CellRendererText()
+		cr.set_property("editable", True)
+		col = gtk.TreeViewColumn(_("Name"), cr, text=0)
+		#col.set_resizable(True)
+		cr.connect("edited",self._text_edited)
+		#col.set_attributes(cr, editable=0)
+		col.add_attribute(cr, "editable", 0)
+		view.append_column(col)
+        
+		return view
+	
+    def _text_edited(self, widget, path, text):
+        self.lstore[path][0] = text

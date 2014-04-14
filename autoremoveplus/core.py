@@ -46,6 +46,8 @@ from deluge.core.rpcserver import export
 
 from twisted.internet import reactor
 
+from urlparse import urlparse
+
 DEFAULT_PREFS = {
     'max_seeds' : -1,
     'filter' : 'func_ratio',
@@ -162,7 +164,9 @@ class Core(CorePluginBase):
         # relevant torrents to us exist and are finished 
         for i in torrent_ids: 
             t = torrentmanager.torrents.get(i, None)
-
+            trackers = t.trackers
+            for tracker in trackers:
+                log.debug("%s" % (urlparse(tracker['url'].replace("udp://","http://")).hostname))
             try:
                 finished = t.is_finished
             except: 
