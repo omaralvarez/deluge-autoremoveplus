@@ -52,7 +52,8 @@ DEFAULT_PREFS = {
     'max_seeds' : -1,
     'filter' : 'func_ratio',
     'count_exempt' : False,
-    'remove_data' : False
+    'remove_data' : False,
+    'trackers' : []
 }
 
 def _get_ratio((i, t)): 
