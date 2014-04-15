@@ -134,13 +134,18 @@ class GtkUI(GtkPluginBase):
         log.debug("applying prefs for AutoRemovePlus")
 
         c = self.glade.get_widget("cbo_remove")
+        
+        trackers = []
+        
+        for row in self._view.get_model():
+            trackers.append(row[0])
 
         config = {
             "max_seeds" : self.glade.get_widget("spn_seeds").get_value_as_int(),
             'filter' : c.get_model()[c.get_active_iter()][0],
             'count_exempt' : self.glade.get_widget('chk_count').get_active(),
-            'remove_data' : self.glade.get_widget('chk_remove_data').get_active()
-            #'trackers' : self.glade.get_widget('chk_remove_data').get_active()
+            'remove_data' : self.glade.get_widget('chk_remove_data').get_active(),
+            'trackers' : trackers
         }
 
         client.autoremoveplus.set_config(config)
@@ -189,3 +194,4 @@ class GtkUI(GtkPluginBase):
 	
     def _text_edited(self, widget, path, text):
         self.lstore[path][0] = text
+        
