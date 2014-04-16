@@ -163,9 +163,12 @@ class GtkUI(GtkPluginBase):
         self.glade.get_widget("spn_seeds").set_value(config["max_seeds"])
         self.glade.get_widget("chk_count").set_active(config['count_exempt'])
         self.glade.get_widget("chk_remove_data").set_active(config['remove_data'])
+        
+        self.lstore.clear()
         trackers = config['trackers']
         for tracker in trackers:
-            log.debug("Tracker: %s" % (tracker))
+            self.lstore.append([tracker])
+        
         selected = config['filter']
 
         for i, row in enumerate(self.rules): 
@@ -177,21 +180,20 @@ class GtkUI(GtkPluginBase):
 
     def _build_view(self):
 
-		self.lstore = gtk.ListStore(str)
-		self.lstore.append(["scenehd.com"])
-		self.lstore.append(["torrentleech.com"])
-		view = gtk.TreeView(model = self.lstore)
-		cr = gtk.CellRendererText()
-		cr.set_property("editable", True)
-		col = gtk.TreeViewColumn(_("Name"), cr, text=0)
-		#col.set_resizable(True)
-		cr.connect("edited",self._text_edited)
-		#col.set_attributes(cr, editable=0)
-		col.add_attribute(cr, "editable", 0)
-		view.append_column(col)
+        self.lstore = gtk.ListStore(str)
+        #self.lstore.append(['Scene'])
+        #self.lstore.append(['Scene2'])
+        view = gtk.TreeView(model = self.lstore)
+        cr = gtk.CellRendererText()
+        cr.set_property("editable", True)
+        col = gtk.TreeViewColumn(_("Name"), cr, text=0)
+        #col.set_resizable(True)
+        cr.connect("edited",self._text_edited)
+        #col.set_attributes(cr, editable=0)
+        #col.add_attribute(cr, "editable", 0)
+        view.append_column(col)
         
-		return view
-	
+        return view
+        
     def _text_edited(self, widget, path, text):
         self.lstore[path][0] = text
-        
