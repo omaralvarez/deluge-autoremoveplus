@@ -31,20 +31,41 @@ Copyright:
     statement from all source files in the program, then also delete it here.
 */
 
-AutoRemovePlugin = Ext.extend(Deluge.Plugin, {
-	constructor: function(config) {
-		config = Ext.apply({
-			name: "AutoRemove"
-		}, config);
-		AutoRemovePlugin.superclass.constructor.call(this, config);
-	},
+Ext.namespace('Deluge.plugins.autoremoveplus.ui');
+//Ext.namespace('Deluge.menus.torrent');
 
-	onDisable: function() {
+if (typeof(console) === 'undefined') {
+  console = {
+    log: function() {}
+  };
+}
 
-	},
+Deluge.plugins.autoremoveplus.PLUGIN_NAME = 'AutoRemovePlus';
+Deluge.plugins.autoremoveplus.MODULE_NAME = 'autoremoveplus';
+Deluge.plugins.autoremoveplus.DISPLAY_NAME = _('AutoRemovePlus');
 
-	onEnable: function() {
+Deluge.plugins.autoremoveplus.Plugin = Ext.extend(Deluge.Plugin, {
 
-	}
+    name: Deluge.plugins.autoremoveplus.PLUGIN_NAME,
+
+    onEnable: function() {
+        //this.prefsPage = new Deluge.plugins.ltconfig.ui.PreferencePage();
+        //deluge.preferences.addPage(this.prefsPage);
+        console.log('Enabling autoremoveplus...');
+        deluge.menus.torrent.add([{
+            xtype: 'menucheckitem',
+            text: 'Exempt torrent'
+        }]);
+        //console.log('%s enabled', Deluge.plugins.ltconfig.PLUGIN_NAME);
+    },
+
+    onDisable: function() {
+        //deluge.preferences.selectPage(_('Plugins'));
+        //deluge.preferences.removePage(this.prefsPage);
+        //this.prefsPage.destroy();
+
+        console.log('%s disabled', Deluge.plugins.autoremoveplus.PLUGIN_NAME);
+    }
 });
-new AutoRemovePlugin();
+
+Deluge.registerPlugin(Deluge.plugins.autoremoveplus.PLUGIN_NAME,Deluge.plugins.autoremoveplus.Plugin);
