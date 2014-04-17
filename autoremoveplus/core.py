@@ -145,6 +145,7 @@ class Core(CorePluginBase):
         max_seeds = self.config['max_seeds'] 
         count_exempt = self.config['count_exempt']
         remove_data = self.config['remove_data']
+        exemp_trackers = self.config['trackers']
 
         # Negative max means unlimited seeds are allowed, so don't do anything
         if max_seeds < 0: 
@@ -165,9 +166,7 @@ class Core(CorePluginBase):
         # relevant torrents to us exist and are finished 
         for i in torrent_ids: 
             t = torrentmanager.torrents.get(i, None)
-            trackers = t.trackers
-            for tracker in trackers:
-                log.debug("%s" % (urlparse(tracker['url'].replace("udp://","http://")).hostname))
+
             try:
                 finished = t.is_finished
             except: 
@@ -181,7 +180,16 @@ class Core(CorePluginBase):
             except KeyError:
                 ignored = False
 
-            (ignored_torrents if ignored else torrents).append((i, t))
+            ex_torrent = False
+            trackers = t.trackers
+            for tracker in trackers:
+                log.debug("%s" % (urlparse(tracker['url'].replace("udp://","http://")).hostname))
+                for ex_tracker in exemp_trackers:
+                    if(tracker['url'].find(ex_tracker.lower()) != -1):
+                        log.debug("Found exempted tracker: %s" % (ex_tracker))
+                        ex_torrent = True
+
+            (ignored_torrents if ignored or ex_torrent else torrents).append((i, t))
 
         log.debug("Number of finished torrents: {0}".format(len(torrents)))
         log.debug("Number of ignored torrents: {0}".format(len(ignored_torrents)))
