@@ -44,17 +44,60 @@ Deluge.plugins.autoremoveplus.PLUGIN_NAME = 'AutoRemovePlus';
 Deluge.plugins.autoremoveplus.MODULE_NAME = 'autoremoveplus';
 Deluge.plugins.autoremoveplus.DISPLAY_NAME = _('AutoRemovePlus');
 
+Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
+
+    title: Deluge.plugins.autoremoveplus.DISPLAY_NAME,
+
+    layout: {
+    type: 'vbox',
+    align: 'stretch'
+    },
+
+    //layout: 'form',
+
+    initComponent: function() {
+        Deluge.plugins.autoremoveplus.ui.PreferencePage.superclass.initComponent.call(
+          this);
+
+        this.numfMST = this.add({
+            xtype: 'spinnerfield',
+            //anchor: '100%',
+            //margins: '0 0 0 0',
+            name: 'maxseedtorrents',
+            fieldLabel: _('Maximum Seeded Torrents'),
+            value: -1,
+            maxValue: 9999,
+            minValue: -1
+        });
+
+        this.chkExemptCount = this.add({
+          xtype: 'checkbox',
+          margins: '0 0 0 0',
+          boxLabel: _('Exempted torrents count toward maximum')
+        });
+
+        this.chkRemoveData = this.add({
+          xtype: 'checkbox',
+          margins: '0 0 0 0',
+          boxLabel: _('Remove torrent data')
+        });
+    }   
+
+});
+
 Deluge.plugins.autoremoveplus.Plugin = Ext.extend(Deluge.Plugin, {
 
     name: Deluge.plugins.autoremoveplus.PLUGIN_NAME,
 
     onEnable: function() {
-        //this.prefsPage = new Deluge.plugins.ltconfig.ui.PreferencePage();
-        //deluge.preferences.addPage(this.prefsPage);
+        this.prefsPage = new Deluge.plugins.autoremoveplus.ui.PreferencePage();
+        deluge.preferences.addPage(this.prefsPage);
+
         console.log('Enabling autoremoveplus...');
+
         deluge.menus.torrent.add([{
             xtype: 'menucheckitem',
-            text: 'Exempt torrent'
+            text: 'AutoRemovePlus Exempt'
         }]);
         //console.log('%s enabled', Deluge.plugins.ltconfig.PLUGIN_NAME);
     },
