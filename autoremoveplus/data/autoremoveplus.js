@@ -117,10 +117,10 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
 
         this.tblTrackers = this.add({
             xtype: 'editorgrid',
-            margins: '2 0 0 0',
+            margins: '2 0 0 5',
             flex: 1,
             autoExpandColumn: 'name',
-            
+
             viewConfig: {
                 emptyText: _('Add a tracker to exempt...'),
                 deferEmptyText: false
@@ -151,6 +151,20 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
                 }
             }
 
+        });
+
+        this.trackerButtonsContainer = this.add({
+            xtype: 'container',
+            layout: 'hbox',
+            margins: '4 0 0 5',
+            items: [{
+                xtype: 'button',
+                text: 'Add Tracker',
+                margins: '0 5 0 0' 
+            }, {
+                xtype: 'button',
+                text: 'Delete Tracker'
+            }]
         });
 
         this.chkExemptCount = this.add({
