@@ -59,26 +59,65 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
         Deluge.plugins.autoremoveplus.ui.PreferencePage.superclass.initComponent.call(
           this);
 
-        this.numfMST = this.add({
-            xtype: 'spinnerfield',
-            //anchor: '100%',
-            //margins: '0 0 0 0',
-            name: 'maxseedtorrents',
-            fieldLabel: _('Maximum Seeded Torrents'),
-            value: -1,
-            maxValue: 9999,
-            minValue: -1
+        this.maxSeedsContainer = this.add({
+            xtype: 'container',
+            layout: 'hbox',
+            margins: '0 5 8 5',
+            items: [{
+                xtype: 'label',
+                margins: '5 5 0 0',
+                text: _('Max. Seeded Torrents: ')
+            },{
+                xtype: 'spinnerfield',
+                //anchor: '20%',
+                //margins: '0 0 0 0',
+                name: 'maxseedtorrents',
+                fieldLabel: _('Maximum Seeded Torrents'),
+                value: -1,
+                maxValue: 9999,
+                minValue: -1,
+                flex: 0.45
+            }, {
+                xtype: 'label',
+                margins: '5 0 0 5',
+                text: _('(-1 for infinite)')
+            }]
+        });
+
+        this.removeByContainer = this.add({
+            xtype: 'container',
+            layout: 'hbox',
+            margins: '0 5 8 5',
+            items: [{
+                xtype: 'label',
+                margins: '5 5 0 0',
+                text: _('Remove by: ')
+            },{
+                xtype: 'combo',
+                margins: '0 8 0 0',
+                mode: 'local',
+                store: [
+                    [0, 'Ratio'],
+                    [1, 'Date Added']
+                ],
+                value: 0,
+                editable: true,
+                triggerAction: 'all',
+                boxMaxWidth: 20
+                //flex: 0.1
+                }
+            ]
         });
 
         this.chkExemptCount = this.add({
           xtype: 'checkbox',
-          margins: '0 0 0 0',
+          margins: '5 0 0 5',
           boxLabel: _('Exempted torrents count toward maximum')
         });
 
         this.chkRemoveData = this.add({
           xtype: 'checkbox',
-          margins: '0 0 0 0',
+          margins: '5 0 0 5',
           boxLabel: _('Remove torrent data')
         });
     }   
