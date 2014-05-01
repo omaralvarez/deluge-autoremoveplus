@@ -1,9 +1,9 @@
 /*
-Script: autoremove.js
+Script: autoremoveplus.js
     The client-side javascript code for the AutoRemove plugin.
 
 Copyright:
-    (C) Jamie Lennox 2011 <jamielennox@gmail.com>
+    (C) 2014 Omar Alvarez <osurfer3@hotmail.com>
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 3, or (at your option)
@@ -179,11 +179,11 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             margins: '4 0 0 5',
             items: [{
                 xtype: 'button',
-                text: 'Add Tracker',
+                text: ' Add Tracker ',
                 margins: '0 5 0 0' 
             }, {
                 xtype: 'button',
-                text: 'Delete Tracker'
+                text: ' Delete Tracker '
             }]
         });
 
@@ -199,6 +199,9 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
           boxLabel: _('Remove torrent data')
         });
 
+        this.trackerButtonsContainer.getComponent(0).setHandler(this.addTracker, this);
+        this.trackerButtonsContainer.getComponent(1).setHandler(this.deleteTracker, this);
+
         deluge.preferences.on('show', this.loadPrefs, this);
         deluge.preferences.buttons[1].on('click', this.savePrefs, this);
         deluge.preferences.buttons[2].on('click', this.savePrefs, this);
@@ -206,6 +209,9 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
     },
 
     //TODO destroy
+
+    addTracker: function() {},
+    deleteTracker: function() {},
 
     loadPrefs: function() {
         if (deluge.preferences.isVisible()) {
