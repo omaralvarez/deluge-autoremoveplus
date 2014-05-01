@@ -109,6 +109,50 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             ]
         });
 
+        this.labelExTrackers = this.add({
+          xtype: 'label',
+          margins: '5 0 0 5',
+          text: _('Exempted Trackers:')
+        });
+
+        this.tblTrackers = this.add({
+            xtype: 'editorgrid',
+            margins: '2 0 0 0',
+            flex: 1,
+            autoExpandColumn: 'name',
+            
+            viewConfig: {
+                emptyText: _('Add a tracker to exempt...'),
+                deferEmptyText: false
+            },
+
+            colModel: new Ext.grid.ColumnModel({
+                columns: [{
+                    id: 'name',
+                    header: _('Name'),
+                    dataIndex: 'name',
+                    sortable: true,
+                    hideable: false
+                }]
+            }),
+
+            store: new Ext.data.ArrayStore({
+                autoDestroy: true,
+                fields: [{name: 'name'}]
+            }),
+
+            listeners: {
+                //beforeedit: function(e) {
+                 //   return e.record.get('enabled');
+                //},
+
+                afteredit: function(e) {
+                    e.record.commit();
+                }
+            }
+
+        });
+
         this.chkExemptCount = this.add({
           xtype: 'checkbox',
           margins: '5 0 0 5',
