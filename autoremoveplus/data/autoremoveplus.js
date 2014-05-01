@@ -32,7 +32,7 @@ Copyright:
 */
 
 Ext.namespace('Deluge.plugins.autoremoveplus.ui');
-//Ext.namespace('Deluge.menus.torrent');
+Ext.namespace('Deluge.plugins.autoremoveplus.util');
 
 if (typeof(console) === 'undefined') {
   console = {
@@ -43,6 +43,18 @@ if (typeof(console) === 'undefined') {
 Deluge.plugins.autoremoveplus.PLUGIN_NAME = 'AutoRemovePlus';
 Deluge.plugins.autoremoveplus.MODULE_NAME = 'autoremoveplus';
 Deluge.plugins.autoremoveplus.DISPLAY_NAME = _('AutoRemovePlus');
+
+Deluge.plugins.autoremoveplus.util.arrayEquals = function(a, b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < b.length; i++) {
+        if (a[i].compare) { 
+            if (!a[i].compare(b[i])) return false;
+        }
+        if (a[i] !== b[i]) return false;
+    }
+    return true;
+};
+
 
 Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
 
@@ -100,7 +112,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
                     [0, 'Ratio'],
                     [1, 'Date Added']
                 ],
-                value: 0,
+                value: 1,
                 editable: true,
                 triggerAction: 'all',
                 boxMaxWidth: 20
@@ -149,6 +161,14 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
                 afteredit: function(e) {
                     e.record.commit();
                 }
+
+            },
+
+            loadData: function(data) {
+                this.getStore().loadData(data);
+                if (this.viewReady) {
+                  this.getView().updateHeaders();
+                }
             }
 
         });
@@ -178,6 +198,90 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
           margins: '5 0 0 5',
           boxLabel: _('Remove torrent data')
         });
+
+        deluge.preferences.on('show', this.loadPrefs, this);
+        deluge.preferences.buttons[1].on('click', this.savePrefs, this);
+        deluge.preferences.buttons[2].on('click', this.savePrefs, this);
+
+    },
+
+    //TODO destroy
+
+    loadPrefs: function() {
+        if (deluge.preferences.isVisible()) {
+          this._loadPrefs1();
+        }
+    },
+
+    _loadPrefs1: function() {
+        deluge.client.autoremoveplus.get_config({
+          success: function(prefs) {
+            this.preferences = prefs;
+            this.chkExemptCount.setValue(prefs['count_exempt']);
+            this.chkRemoveData.setValue(prefs['remove_data']);
+            this.loadTrackers(prefs['trackers']);
+            this.maxSeedsContainer.getComponent(1).setValue(prefs['max_seeds']);
+
+            var removeBy = this.removeByContainer.getComponent(1);
+            if(prefs['filter'] == 'func_ratio') 
+                removeBy.setValue(0);
+            else
+                removeBy.setValue(1);
+          },
+          scope: this
+        });
+    },
+
+    loadTrackers: function(trackers) {
+        var store = this.tblTrackers.getStore();
+
+        var data = [];
+        var keys = Ext.keys(trackers).sort();
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            data.push([trackers[key]]);
+        }
+
+        this.tblTrackers.loadData(data);
+    },
+
+    savePrefs: function() {
+        var trackerList = [];
+        var store = this.tblTrackers.getStore();
+        var apply = false;
+
+        for (var i = 0; i < store.getCount(); i++) {
+          var record = store.getAt(i);
+          var name = record.get('name');
+          trackerList.push(name);
+        }
+
+        if(this.removeByContainer.getComponent(1).getValue() == 0)
+            var filterVal = 'func_ratio';
+        else
+            var filterVal = 'func_added';
+
+        var prefs = {
+          remove_data: this.chkRemoveData.getValue(),
+          count_exempt: this.chkExemptCount.getValue(),
+          trackers: trackerList,
+          max_seeds: this.maxSeedsContainer.getComponent(1).getValue(),
+          filter: filterVal
+        };
+
+        apply |= prefs['remove_data'] != this.preferences['remove_data'];
+        apply |= prefs['count_exempt'] != this.preferences['count_exempt'];
+        apply |= prefs['max_seeds'] != this.preferences['max_seeds'];
+        apply |= prefs['filter'] != this.preferences['filter'];
+        apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['trackers'],
+            this.preferences['trackers']);
+
+        if (apply) {
+          deluge.client.autoremoveplus.set_config(prefs, {
+            success: this.loadPrefs,
+            scope: this
+          });
+        }
     }   
 
 });
