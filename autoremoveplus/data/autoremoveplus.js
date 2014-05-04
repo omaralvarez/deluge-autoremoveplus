@@ -171,6 +171,15 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
 
             },
 
+            setEmptyText: function(text) {
+                if (this.viewReady) {
+                  this.getView().emptyText = text;
+                  this.getView().refresh();
+                } else {
+                  Ext.apply(this.viewConfig, {emptyText: text});
+                }
+            },
+
             loadData: function(data) {
                 this.getStore().loadData(data);
                 if (this.viewReady) {
@@ -213,12 +222,35 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
         deluge.preferences.buttons[1].on('click', this.savePrefs, this);
         deluge.preferences.buttons[2].on('click', this.savePrefs, this);
 
+        this.waitForClient(10);
     },
 
     //TODO destroy
+    onDestroy: function() {
+        deluge.preferences.un('show', this.loadPrefs, this);
+        deluge.preferences.buttons[1].un('click', this.savePrefs, this);
+        deluge.preferences.buttons[2].un('click', this.savePrefs, this);
+
+        Deluge.plugins.autoremoveplus.ui.PreferencePage.superclass.onDestroy.call(this);
+    },
+
+    waitForClient: function(triesLeft) {
+        if (triesLeft < 1) {
+          this.tblTrackers.setEmptyText(_('Unable to load settings'));
+          return;
+        }
+
+        if (deluge.login.isVisible() || !deluge.client.core ||
+            !deluge.client.autoremoveplus) {
+          var self = this;
+          var t = deluge.login.isVisible() ? triesLeft : triesLeft-1;
+          setTimeout(function() { self.waitForClient.apply(self, [t]); }, 1000);
+        } else if (!this.isDestroyed) {
+          this.loadBaseState();
+        }
+    },
 
     addTracker: function() {
-
         // access the Record constructor through the grid's store
         var store = this.tblTrackers.getStore();
         var Tracker = store.recordType;
@@ -228,22 +260,16 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
         this.tblTrackers.stopEditing();
         store.insert(0, t);
         this.tblTrackers.startEditing(0, 0); 
-
     },
 
     deleteTracker: function() {
-
         var selections = this.tblTrackers.getSelectionModel().getSelections(); 
-        console.log('Before store...');
         var store = this.tblTrackers.getStore();
-        console.log('Before stop...');
+
         this.tblTrackers.stopEditing();
-        console.log('Before removing...');
         for (var i = 0; i < selections.length; i++)
             store.remove(selections[i]);
-        console.log('After removing...');
         store.commitChanges();
-
     },
 
     loadPrefs: function() {
