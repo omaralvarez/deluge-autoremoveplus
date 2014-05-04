@@ -246,7 +246,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
           var t = deluge.login.isVisible() ? triesLeft : triesLeft-1;
           setTimeout(function() { self.waitForClient.apply(self, [t]); }, 1000);
         } else if (!this.isDestroyed) {
-          this.loadBaseState();
+          this.loadPrefs();
         }
     },
 
@@ -359,19 +359,37 @@ Deluge.plugins.autoremoveplus.Plugin = Ext.extend(Deluge.Plugin, {
         this.prefsPage = new Deluge.plugins.autoremoveplus.ui.PreferencePage();
         deluge.preferences.addPage(this.prefsPage);
 
-        console.log('Enabling autoremoveplus...');
-
         deluge.menus.torrent.add([{
             xtype: 'menucheckitem',
-            text: 'AutoRemovePlus Exempt'
+            text: 'AutoRemovePlus Exempt',
+            listeners: {
+                render: function(checkitem) {
+                   console.log('Showing exempt menu...'); 
+                   
+                    deluge.client.autoremoveplus.get_ignore(deluge.torrents.getSelectedIds(), {
+                        success: function(ignored) {
+                            var checked = ignored.indexOf(false) < 0;
+                            checkitem.setChecked(checked);
+                        },
+                        scope: this
+                    });
+                },
+
+                checkchange: function(checkitem,checked) {
+                    //console.log('Torrent checked...'); 
+                    console.log(checked); 
+                    deluge.client.autoremoveplus.set_ignore(deluge.torrents.getSelectedIds(),checked);
+                }
+            }
         }]);
-        //console.log('%s enabled', Deluge.plugins.ltconfig.PLUGIN_NAME);
+
+        console.log('%s enabled', Deluge.plugins.autoremoveplus.PLUGIN_NAME);
     },
 
     onDisable: function() {
-        //deluge.preferences.selectPage(_('Plugins'));
-        //deluge.preferences.removePage(this.prefsPage);
-        //this.prefsPage.destroy();
+        deluge.preferences.selectPage(_('Plugins'));
+        deluge.preferences.removePage(this.prefsPage);
+        this.prefsPage.destroy();
 
         console.log('%s disabled', Deluge.plugins.autoremoveplus.PLUGIN_NAME);
     }
