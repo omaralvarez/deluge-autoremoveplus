@@ -142,8 +142,17 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
                     header: _('Name'),
                     dataIndex: 'name',
                     sortable: true,
-                    hideable: false
+                    hideable: false,
+                    editable: true,
+                    editor: {
+                      xtype: 'textfield'
+                    }
                 }]
+            }),
+
+            selModel: new Ext.grid.RowSelectionModel({
+                singleSelect: false,
+                moveEditorOnEnter: false
             }),
 
             store: new Ext.data.ArrayStore({
@@ -208,8 +217,34 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
 
     //TODO destroy
 
-    addTracker: function() {},
-    deleteTracker: function() {},
+    addTracker: function() {
+
+        // access the Record constructor through the grid's store
+        var store = this.tblTrackers.getStore();
+        var Tracker = store.recordType;
+        var t = new Tracker({
+            name: ''
+        });
+        this.tblTrackers.stopEditing();
+        store.insert(0, t);
+        this.tblTrackers.startEditing(0, 0); 
+
+    },
+
+    deleteTracker: function() {
+
+        var selections = this.tblTrackers.getSelectionModel().getSelections(); 
+        console.log('Before store...');
+        var store = this.tblTrackers.getStore();
+        console.log('Before stop...');
+        this.tblTrackers.stopEditing();
+        console.log('Before removing...');
+        for (var i = 0; i < selections.length; i++)
+            store.remove(selections[i]);
+        console.log('After removing...');
+        store.commitChanges();
+
+    },
 
     loadPrefs: function() {
         if (deluge.preferences.isVisible()) {
