@@ -365,30 +365,6 @@ Deluge.plugins.autoremoveplus.Plugin = Ext.extend(Deluge.Plugin, {
             id: 'exempt',
 
             listeners: {
-                /*render: function(checkitem) {
-                   	console.log('Showing exempt menu in render...'); 
-                   
-                    deluge.client.autoremoveplus.get_ignore(deluge.torrents.getSelectedIds(), {
-                        success: function(ignored) {
-                            var checked = ignored.indexOf(false) < 0;
-                            checkitem.setChecked(checked);
-                        },
-                        scope: this
-                    });
-                },
-
-                afterrender: function(checkitem) {
-                   	console.log('Showing exempt menu in after...'); 
-                   
-                    deluge.client.autoremoveplus.get_ignore(deluge.torrents.getSelectedIds(), {
-                        success: function(ignored) {
-                            var checked = ignored.indexOf(false) < 0;
-                            checkitem.setChecked(checked);
-                        },
-                        scope: this
-                    });
-                },
-*/
                 checkchange: function(checkitem,checked) {
                     //console.log('Torrent checked...'); 
                     console.log(checked); 
@@ -412,6 +388,7 @@ Deluge.plugins.autoremoveplus.Plugin = Ext.extend(Deluge.Plugin, {
         console.log('%s disabled', Deluge.plugins.autoremoveplus.PLUGIN_NAME);
     },
 
+    //TODO block setChecked signal
     updateExempt: function() {
     	console.log('Updating checkitem...');
     	var checkitem = deluge.menus.torrent.getComponent('exempt');

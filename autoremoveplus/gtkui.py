@@ -51,6 +51,7 @@ from common import get_resource
 class GtkUI(GtkPluginBase):
     
     def enable(self):
+        log.debug("Enabling AutoRemovePlus...")    
         self.glade = gtk.glade.XML(get_resource("config.glade"))
         component.get("Preferences").add_page("AutoRemovePlus", self.glade.get_widget("prefs_box"))
         component.get("PluginManager").register_hook("on_apply_prefs", self.on_apply_prefs)
@@ -99,6 +100,7 @@ class GtkUI(GtkPluginBase):
 
         torrentmenu = component.get("MenuBar").torrentmenu
         self.show_sig = torrentmenu.connect('show', on_menu_show, (self.menu, toggled))
+        self.realize_sig = torrentmenu.connect('realize', on_menu_show, (self.menu, toggled))
         torrentmenu.append(self.menu)
 
         self.on_show_prefs()
@@ -111,10 +113,12 @@ class GtkUI(GtkPluginBase):
         torrentmenu = component.get("MenuBar").torrentmenu
         torrentmenu.remove(self.menu)
         torrentmenu.disconnect(self.show_sig) 
+        torrentmenu.disconnect(self.realize_sig) 
 
         del self.rules
         del self.menu 
-        del self.show_sig 
+        del self.show_sig
+        del self.realize_sig
 
     def _do_new_tracker(self,button):
         new_row = self.lstore.append(["New Tracker"])
