@@ -13,5 +13,5 @@ Features
 - Choose to remove them based on age or ratio.
 - Right click and select torrents that you don't want automatically removed.
 - Remove torrent data option.
-- Create a exempted tracker list, so that torrents that have those trackers are not removed.
+- Create an exempted tracker list, so that torrents that belong to those trackers are not removed.
 - Fully functional WebUI. 
