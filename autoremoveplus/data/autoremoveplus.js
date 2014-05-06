@@ -106,17 +106,19 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
                 xtype: 'combo',
                 margins: '0 8 0 0',
                 mode: 'local',
-                store: [
-                    [0, 'Ratio'],
-                    [1, 'Date Added']
-                ],
-                value: 1,
+                store: new Ext.data.ArrayStore({
+	                autoDestroy: true,
+	                idIndex: 0,
+	                fields: ['func_id','func_name']
+            	}),
+            	valueField: 'func_id',
+    			displayField: 'func_name',
+                //value: 0,
                 editable: true,
                 triggerAction: 'all',
                 boxMaxWidth: 20
                 //flex: 0.1
-                }
-            ]
+            }]
         });
 
         this.labelExTrackers = this.add({
@@ -286,22 +288,34 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             this.chkRemoveData.setValue(prefs['remove_data']);
             this.loadTrackers(prefs['trackers']);
             this.maxSeedsContainer.getComponent(1).setValue(prefs['max_seeds']);
-
-            var removeBy = this.removeByContainer.getComponent(1);
-            if(prefs['filter'] == 'func_ratio') 
-                removeBy.setValue(0);
-            else
-                removeBy.setValue(1);
           },
           scope: this
         });
+
+        deluge.client.autoremoveplus.get_remove_rules({
+          success: function(rules) {
+          	var data = [];
+          	var removeBy = this.removeByContainer.getComponent(1);
+            var removeByStore = removeBy.getStore();
+            var keys = Ext.keys(rules);
+            for (var i = 0; i < keys.length; i++) {
+	            var key = keys[i];
+	            data.push([key,rules[key]]);
+	            //console.log([key,rules[key]]);
+	        }
+            removeByStore.loadData(data);
+            removeBy.setValue(this.preferences['filter']);
+          },
+          scope: this
+        });
+
     },
 
     loadTrackers: function(trackers) {
         var store = this.tblTrackers.getStore();
 
         var data = [];
-        var keys = Ext.keys(trackers).sort();
+        var keys = Ext.keys(trackers);
         for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
             data.push([trackers[key]]);
@@ -321,10 +335,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
           trackerList.push(name);
         }
 
-        if(this.removeByContainer.getComponent(1).getValue() == 0)
-            var filterVal = 'func_ratio';
-        else
-            var filterVal = 'func_added';
+        var filterVal = this.removeByContainer.getComponent(1).getValue();
 
         var prefs = {
           remove_data: this.chkRemoveData.getValue(),
