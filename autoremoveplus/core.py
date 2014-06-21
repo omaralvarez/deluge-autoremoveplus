@@ -182,12 +182,16 @@ class Core(CorePluginBase):
 
             ex_torrent = False
             trackers = t.trackers
-            for tracker in trackers:
-                log.debug("%s" % (urlparse(tracker['url'].replace("udp://","http://")).hostname))
-                for ex_tracker in exemp_trackers:
-                    if(tracker['url'].find(ex_tracker.lower()) != -1):
-                        log.debug("Found exempted tracker: %s" % (ex_tracker))
-                        ex_torrent = True
+            # for tracker in trackers:
+            #     log.debug("%s" % (urlparse(tracker['url'].replace("udp://","http://")).hostname))
+            #     for ex_tracker in exemp_trackers:
+            #         if(tracker['url'].find(ex_tracker.lower()) != -1):
+            #             log.debug("Found exempted tracker: %s" % (ex_tracker))
+            #             ex_torrent = True
+            for tracker,ex_tracker in ((t,ex_t) for t in trackers for ex_t in exemp_trackers):
+                if(tracker['url'].find(ex_tracker.lower()) != -1):
+                    log.debug("Found exempted tracker: %s" % (ex_tracker))
+                    ex_torrent = True
 
             (ignored_torrents if ignored or ex_torrent else torrents).append((i, t))
 
