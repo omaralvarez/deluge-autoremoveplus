@@ -53,7 +53,8 @@ DEFAULT_PREFS = {
     'filter' : 'func_ratio',
     'count_exempt' : False,
     'remove_data' : False,
-    'trackers' : []
+    'trackers' : [],
+    'min' : 0.0 
 }
 
 def _get_ratio((i, t)): 

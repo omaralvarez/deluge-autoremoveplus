@@ -136,7 +136,7 @@ class GtkUI(GtkPluginBase):
         
     def on_apply_prefs(self):
         log.debug("applying prefs for AutoRemovePlus")
-
+        log.debug("Min: %f" % (self.glade.get_widget("spn_min").get_value()))
         c = self.glade.get_widget("cbo_remove")
         
         trackers = []
@@ -149,7 +149,8 @@ class GtkUI(GtkPluginBase):
             'filter' : c.get_model()[c.get_active_iter()][0],
             'count_exempt' : self.glade.get_widget('chk_count').get_active(),
             'remove_data' : self.glade.get_widget('chk_remove_data').get_active(),
-            'trackers' : trackers
+            'trackers' : trackers,
+            'min' : self.glade.get_widget("spn_min").get_value()
         }
 
         client.autoremoveplus.set_config(config)
@@ -165,6 +166,7 @@ class GtkUI(GtkPluginBase):
 
     def cb_get_config(self, config):
         self.glade.get_widget("spn_seeds").set_value(config["max_seeds"])
+        self.glade.get_widget("spn_min").set_value(config["min"])
         self.glade.get_widget("chk_count").set_active(config['count_exempt'])
         self.glade.get_widget("chk_remove_data").set_active(config['remove_data'])
         
