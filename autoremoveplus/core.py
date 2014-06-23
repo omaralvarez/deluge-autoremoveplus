@@ -65,7 +65,8 @@ def _date_added((i, t)):
 
 filter_funcs = { 
     'func_ratio' : _get_ratio, 
-    'func_added' : lambda (i, t): -t.time_added 
+    'func_added' : lambda (i, t): -t.time_added,
+    'func_seed_time' : lambda (i,t): t.get_status(['seeding_time'])['seeding_time']
 }
 
 live = True
@@ -117,7 +118,8 @@ class Core(CorePluginBase):
     def get_remove_rules(self): 
         return {
             'func_ratio' : 'Ratio',  
-            'func_added' : 'Date Added'
+            'func_added' : 'Date Added',
+            'func_seed_time' : 'Seed Time'
         }
 
     @export
@@ -167,6 +169,10 @@ class Core(CorePluginBase):
         # relevant torrents to us exist and are finished 
         for i in torrent_ids: 
             t = torrentmanager.torrents.get(i, None)
+
+            #log.debug("Time added: %f" % (t.time_added))
+            #log.debug("Ratio: %f" % (t.get_ratio()))
+            #log.debug("Seed time: %f" % (t.get_status(['seeding_time'])['seeding_time']))
 
             try:
                 finished = t.is_finished

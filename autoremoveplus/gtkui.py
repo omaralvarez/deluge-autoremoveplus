@@ -136,7 +136,7 @@ class GtkUI(GtkPluginBase):
         
     def on_apply_prefs(self):
         log.debug("applying prefs for AutoRemovePlus")
-        log.debug("Min: %f" % (self.glade.get_widget("spn_min").get_value()))
+        #log.debug("Min: %f" % (self.glade.get_widget("spn_min").get_value()))
         c = self.glade.get_widget("cbo_remove")
         
         trackers = []
