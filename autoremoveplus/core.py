@@ -47,6 +47,7 @@ from deluge.core.rpcserver import export
 from twisted.internet import reactor
 
 from urlparse import urlparse
+import time
 
 DEFAULT_PREFS = {
     'max_seeds' : -1,
@@ -61,12 +62,13 @@ def _get_ratio((i, t)):
     return t.get_ratio()
 
 def _date_added((i, t)): 
-    return -t.time_added 
+    #return -t.time_added 
+    return (time.time()-t.time_added)/86400.0
 
 filter_funcs = { 
     'func_ratio' : _get_ratio, 
-    'func_added' : lambda (i, t): -t.time_added,
-    'func_seed_time' : lambda (i,t): t.get_status(['seeding_time'])['seeding_time']
+    'func_added' : lambda (i, t): (time.time()-t.time_added)/86400.0,
+    'func_seed_time' : lambda (i,t): t.get_status(['seeding_time'])['seeding_time']/86400.0
 }
 
 live = True
@@ -149,6 +151,7 @@ class Core(CorePluginBase):
         count_exempt = self.config['count_exempt']
         remove_data = self.config['remove_data']
         exemp_trackers = self.config['trackers']
+        min_val = self.config['min']
 
         # Negative max means unlimited seeds are allowed, so don't do anything
         if max_seeds < 0: 
@@ -223,18 +226,18 @@ class Core(CorePluginBase):
         for i, t in torrents[max_seeds:]: 
             log.debug("AutoRemovePlus: Remove torrent %s, %s" % (i, t.get_status(['name'])['name']))
             if live: 
-                try:
-                    torrentmanager.remove(i, remove_data = remove_data)
-                except Exception, e: 
-                    log.warn("AutoRemovePlus: Problems removing torrent: %s", e)
+                if filter_funcs.get(self.config['filter'], _get_ratio)((i,t)) >= min_val:
+                    try:
+                        torrentmanager.remove(i, remove_data = remove_data)
+                    except Exception, e: 
+                        log.warn("AutoRemovePlus: Problems removing torrent: %s", e)
 
-                try: 
-                    del self.torrent_states.config[i] 
-                except KeyError: 
-                    pass
-                else: 
-                    changed = True
-
+                    try: 
+                        del self.torrent_states.config[i] 
+                    except KeyError: 
+                        pass
+                    else: 
+                        changed = True
         if changed: 
             self.torrent_states.save()
          

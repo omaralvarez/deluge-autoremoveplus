@@ -113,6 +113,7 @@
                           <widget class="GtkLabel" id="label6">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="tooltip" translatable="yes">Minimum age and seed time is measured in days</property>
                             <property name="label" translatable="yes">Min:</property>
                           </widget>
                           <packing>
@@ -126,6 +127,7 @@
                           <widget class="GtkSpinButton" id="spn_min">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="tooltip" translatable="yes">Minimum age and seed time is measured in days</property>
                             <property name="invisible_char">●</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
