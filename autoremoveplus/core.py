@@ -185,6 +185,9 @@ class Core(CorePluginBase):
                 if not finished: 
                     continue
 
+            #if not (t.state == "Seeding"):
+            #    continue
+
             try: 
                 ignored = self.torrent_states[i]
             except KeyError:

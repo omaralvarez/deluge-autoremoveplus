@@ -33,7 +33,7 @@
                           <widget class="GtkLabel" id="label2">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Maximum Seeded Torrents: </property>
+                            <property name="label" translatable="yes">Maximum Torrents: </property>
                           </widget>
                           <packing>
                             <property name="expand">False</property>

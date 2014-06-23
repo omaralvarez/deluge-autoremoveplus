@@ -76,7 +76,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             items: [{
                 xtype: 'label',
                 margins: '5 5 0 0',
-                text: _('Max. Seeded Torrents: ')
+                text: _('Max. Torrents: ')
             },{
                 xtype: 'spinnerfield',
                 //anchor: '20%',
