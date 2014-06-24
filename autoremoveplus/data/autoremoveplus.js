@@ -82,7 +82,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
                 //anchor: '20%',
                 //margins: '0 0 0 0',
                 name: 'maxseedtorrents',
-                fieldLabel: _('Maximum Seeded Torrents'),
+                fieldLabel: _('Maximum Torrents'),
                 value: -1,
                 maxValue: 9999,
                 minValue: -1,
@@ -116,8 +116,27 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
                 //value: 0,
                 editable: true,
                 triggerAction: 'all',
-                boxMaxWidth: 20
-                //flex: 0.1
+               // autoWidth: true,
+                //boxMaxWidth: 20,
+                flex: 0.45
+            },{
+                xtype: 'label',
+                margins: '5 5 0 0',
+                text: _('Min: ')
+            },{
+                xtype: 'spinnerfield',
+                //anchor: '20%',
+                //margins: '0 0 0 0',
+                name: 'min',
+                fieldLabel: _('Min'),
+                value: 0.0,
+                maxValue: 1000.0,
+                minValue: 0.0,
+                allowDecimals: true,
+                decimalPrecision: 3,
+                incrementValue: 0.5,
+                alternateIncrementValue: 1.0,
+                flex: 0.35
             }]
         });
 
@@ -288,6 +307,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             this.chkRemoveData.setValue(prefs['remove_data']);
             this.loadTrackers(prefs['trackers']);
             this.maxSeedsContainer.getComponent(1).setValue(prefs['max_seeds']);
+            this.removeByContainer.getComponent(3).setValue(prefs['min']);
           },
           scope: this
         });
@@ -342,13 +362,15 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
           count_exempt: this.chkExemptCount.getValue(),
           trackers: trackerList,
           max_seeds: this.maxSeedsContainer.getComponent(1).getValue(),
-          filter: filterVal
+          filter: filterVal,
+          min: this.removeByContainer.getComponent(3).getValue()
         };
 
         apply |= prefs['remove_data'] != this.preferences['remove_data'];
         apply |= prefs['count_exempt'] != this.preferences['count_exempt'];
         apply |= prefs['max_seeds'] != this.preferences['max_seeds'];
         apply |= prefs['filter'] != this.preferences['filter'];
+        apply |= prefs['min'] != this.preferences['min'];
         apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['trackers'],
             this.preferences['trackers']);
 

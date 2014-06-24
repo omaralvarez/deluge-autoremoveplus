@@ -127,13 +127,13 @@
                           <widget class="GtkSpinButton" id="spn_min">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="tooltip" translatable="yes">Minimum age and seed time is measured in days</property>
+                            <property name="tooltip" translatable="yes">Minimum age and seed time are measured in days</property>
                             <property name="invisible_char">●</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
                             <property name="primary_icon_sensitive">True</property>
                             <property name="secondary_icon_sensitive">True</property>
-                            <property name="adjustment">0 0 100 0.5 10 0</property>
+                            <property name="adjustment">0 0 1000 0.5 10 0</property>
                             <property name="digits">3</property>
                             <property name="numeric">True</property>
                           </widget>
