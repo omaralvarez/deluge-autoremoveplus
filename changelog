@@ -1,3 +1,7 @@
+Version 0.3
+- Feature: Minimum value to delete torrents according to ratio, seed time or age. Times are expected as days.
+- Feature: New filtering function seed time added.
+
 Version 0.2
 - Feature: Fully functional WebUI
 - Feature: Exempted tracker list
