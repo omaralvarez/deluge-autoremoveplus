@@ -45,6 +45,7 @@ import deluge.configmanager
 from deluge.core.rpcserver import export
 
 from twisted.internet import reactor
+from twisted.internet.task import LoopingCall, deferLater
 
 from urlparse import urlparse
 import time
@@ -85,24 +86,31 @@ class Core(CorePluginBase):
         self.config.save()
         self.torrent_states.save()
         
-
-        eventmanager = component.get("EventManager")
-        eventmanager.register_event_handler("TorrentFinishedEvent", self.do_remove)
+        #eventmanager = component.get("EventManager")
+        #eventmanager.register_event_handler("TorrentFinishedEvent", self.do_remove)
 
         # it appears that if the plugin is enabled on boot then it is called before the 
         # torrents are properly loaded and so do_remove receives an empty list. So we must 
         # listen to SessionStarted for when deluge boots but we still have apply_now so that 
         # if the plugin is enabled mid-program do_remove is still run
-        eventmanager.register_event_handler("SessionStartedEvent", self.do_remove)       
+        #eventmanager.register_event_handler("SessionStartedEvent", self.do_remove)  
+        self.looping_call = LoopingCall(self.do_remove)
+        deferLater(reactor, 5, self.start_looping)     
 
     def disable(self):
-        eventmanager = component.get("EventManager")
-        eventmanager.deregister_event_handler("TorrentFinishedEvent", self.do_remove)
-        eventmanager.deregister_event_handler("SessionStartedEvent", self.do_remove)
+        #eventmanager = component.get("EventManager")
+        #eventmanager.deregister_event_handler("TorrentFinishedEvent", self.do_remove)
+        #eventmanager.deregister_event_handler("SessionStartedEvent", self.do_remove)
+        if self.looping_call.running:
+            self.looping_call.stop()
 
     def update(self):
         # why does update only seem to get called when the plugin is enabled in this session ??
         pass
+
+    def start_looping(self):
+        log.warning('check interval loop starting')
+        self.looping_call.start(self.config['interval'] * 86400.0)
 
     @export
     def set_config(self, config):
@@ -110,7 +118,9 @@ class Core(CorePluginBase):
         for key in config.keys():
             self.config[key] = config[key]
         self.config.save()
-        self.do_remove()
+        if self.looping_call.running:
+            self.looping_call.stop()
+        self.looping_call.start(self.config['interval'] * 86400.0)
 
     @export
     def get_config(self):
