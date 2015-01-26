@@ -55,7 +55,8 @@ DEFAULT_PREFS = {
     'count_exempt' : False,
     'remove_data' : False,
     'trackers' : [],
-    'min' : 0.0 
+    'min' : 0.0,
+    'interval' : 0.5 
 }
 
 def _get_ratio((i, t)): 

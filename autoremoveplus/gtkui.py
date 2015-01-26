@@ -150,7 +150,8 @@ class GtkUI(GtkPluginBase):
             'count_exempt' : self.glade.get_widget('chk_count').get_active(),
             'remove_data' : self.glade.get_widget('chk_remove_data').get_active(),
             'trackers' : trackers,
-            'min' : self.glade.get_widget("spn_min").get_value()
+            'min' : self.glade.get_widget("spn_min").get_value(),
+            'interval' : self.glade.get_widget("spn_interval").get_value()
         }
 
         client.autoremoveplus.set_config(config)
@@ -169,6 +170,7 @@ class GtkUI(GtkPluginBase):
         self.glade.get_widget("spn_min").set_value(config["min"])
         self.glade.get_widget("chk_count").set_active(config['count_exempt'])
         self.glade.get_widget("chk_remove_data").set_active(config['remove_data'])
+        self.glade.get_widget("spn_interval").set_value(config["interval"])
         
         self.lstore.clear()
         trackers = config['trackers']

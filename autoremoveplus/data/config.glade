@@ -42,7 +42,7 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkSpinButton" id="spn_seeds1">
+                          <widget class="GtkSpinButton" id="spn_interval">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
