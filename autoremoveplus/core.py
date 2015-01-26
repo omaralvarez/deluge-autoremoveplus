@@ -228,6 +228,7 @@ class Core(CorePluginBase):
         # remove these torrents
         for i, t in torrents[max_seeds:]: 
             log.debug("AutoRemovePlus: Remove torrent %s, %s" % (i, t.get_status(['name'])['name']))
+            log.debug(filter_funcs.get(self.config['filter'], _get_ratio)((i,t)))
             if live: 
                 if filter_funcs.get(self.config['filter'], _get_ratio)((i,t)) >= min_val:
                     try:
