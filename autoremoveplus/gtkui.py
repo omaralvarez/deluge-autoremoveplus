@@ -60,12 +60,26 @@ class GtkUI(GtkPluginBase):
         self.rules = gtk.ListStore(str, str)
         client.autoremoveplus.get_remove_rules().addCallback(self.cb_get_rules)
 
+        self.sel_func_store = gtk.ListStore(str)
+        self.sel_func_store.append(["AND"])
+        self.sel_func_store.append(["OR"])
+
         cell = gtk.CellRendererText()
         
         cbo_remove = self.glade.get_widget("cbo_remove")
         cbo_remove.pack_start(cell, True)
         cbo_remove.add_attribute(cell, 'text', 1)
         cbo_remove.set_model(self.rules)
+
+        cbo_remove1 = self.glade.get_widget("cbo_remove1")
+        cbo_remove1.pack_start(cell, True)
+        cbo_remove1.add_attribute(cell, 'text', 1)
+        cbo_remove1.set_model(self.rules)
+
+        cbo_sel_func = self.glade.get_widget("cbo_sel_func")
+        cbo_sel_func.set_model(self.sel_func_store)
+        cbo_sel_func.set_active(0)
+        self.glade.get_widget("dummy").set_model(self.sel_func_store)
         
         self._new_tracker = self.glade.get_widget("new_tracker")
         self._new_tracker.connect("clicked", self._do_new_tracker)
@@ -116,6 +130,7 @@ class GtkUI(GtkPluginBase):
         torrentmenu.disconnect(self.realize_sig) 
 
         del self.rules
+        del self.sel_func_store
         del self.menu 
         del self.show_sig
         del self.realize_sig

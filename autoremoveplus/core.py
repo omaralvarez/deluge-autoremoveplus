@@ -57,7 +57,10 @@ DEFAULT_PREFS = {
     'remove_data' : False,
     'trackers' : [],
     'min' : 0.0,
-    'interval' : 0.5 
+    'interval' : 0.5,
+    'sel_func' : 'or',
+    'filter2' : 'func_added',
+    'min2' : 0.0
 }
 
 def _get_ratio((i, t)): 
@@ -70,7 +73,12 @@ def _date_added((i, t)):
 filter_funcs = { 
     'func_ratio' : _get_ratio, 
     'func_added' : lambda (i, t): (time.time()-t.time_added)/86400.0,
-    'func_seed_time' : lambda (i,t): t.get_status(['seeding_time'])['seeding_time']/86400.0
+    'func_seed_time' : lambda (i, t): t.get_status(['seeding_time'])['seeding_time']/86400.0
+}
+
+sel_funcs = {
+    'and': lambda (a, b): a and b,
+    'or' : lambda (a, b): a or b
 }
 
 live = True
@@ -233,13 +241,15 @@ class Core(CorePluginBase):
             if max_seeds < 0: max_seeds = 0 
         
         # sort it according to our chosen method 
-        torrents.sort(key = filter_funcs.get(self.config['filter'], _get_ratio), reverse = False)
+        #torrents.sort(key = filter_funcs.get(self.config['filter'], _get_ratio), reverse = False)
+        torrents.sort(key = lambda x : (filter_funcs.get(self.config['filter'], _get_ratio), filter_funcs.get(self.config['filter2'], _get_ratio)), reverse = False)
 
         changed = False
         # remove these torrents
         for i, t in torrents[max_seeds:]: 
             log.debug("AutoRemovePlus: Remove torrent %s, %s" % (i, t.get_status(['name'])['name']))
             log.debug(filter_funcs.get(self.config['filter'], _get_ratio)((i,t)))
+            log.debug(filter_funcs.get(self.config['filter2'], _get_ratio)((i,t)))
             if live: 
                 if filter_funcs.get(self.config['filter'], _get_ratio)((i,t)) >= min_val:
                     try:
