@@ -61,8 +61,8 @@ class GtkUI(GtkPluginBase):
         client.autoremoveplus.get_remove_rules().addCallback(self.cb_get_rules)
 
         self.sel_func_store = gtk.ListStore(str)
-        self.sel_func_store.append(["AND"])
-        self.sel_func_store.append(["OR"])
+        self.sel_func_store.append(["and"])
+        self.sel_func_store.append(["or"])
 
         cell = gtk.CellRendererText()
         
@@ -187,6 +187,7 @@ class GtkUI(GtkPluginBase):
     def cb_get_config(self, config):
         self.glade.get_widget("spn_seeds").set_value(config["max_seeds"])
         self.glade.get_widget("spn_min").set_value(config["min"])
+        self.glade.get_widget("spn_min1").set_value(config["min2"])
         self.glade.get_widget("chk_count").set_active(config['count_exempt'])
         self.glade.get_widget("chk_remove_data").set_active(config['remove_data'])
         self.glade.get_widget("spn_interval").set_value(config["interval"])
@@ -204,6 +205,26 @@ class GtkUI(GtkPluginBase):
                 break
         else:
             self.glade.get_widget("cbo_remove").set_active(0)
+
+
+        selected = config['filter2']
+            
+        for i, row in enumerate(self.rules): 
+            if row[0] == selected: 
+                self.glade.get_widget("cbo_remove1").set_active(i) 
+                break
+        else:
+            self.glade.get_widget("cbo_remove1").set_active(0)
+
+        selected = config['sel_func']    
+
+        for i, row in enumerate(self.sel_func_store): 
+
+            if row[0] == selected: 
+                self.glade.get_widget("cbo_sel_func").set_active(i) 
+                break
+        else:
+            self.glade.get_widget("cbo_sel_func").set_active(0)
 
     def _build_view(self):
 
