@@ -153,6 +153,7 @@ class GtkUI(GtkPluginBase):
         log.debug("applying prefs for AutoRemovePlus")
         #log.debug("Min: %f" % (self.glade.get_widget("spn_min").get_value()))
         c = self.glade.get_widget("cbo_remove")
+        c1 = self.glade.get_widget("cbo_remove1")
         
         trackers = []
         
@@ -166,7 +167,10 @@ class GtkUI(GtkPluginBase):
             'remove_data' : self.glade.get_widget('chk_remove_data').get_active(),
             'trackers' : trackers,
             'min' : self.glade.get_widget("spn_min").get_value(),
-            'interval' : self.glade.get_widget("spn_interval").get_value()
+            'interval' : self.glade.get_widget("spn_interval").get_value(),
+            'sel_func' : self.glade.get_widget("cbo_sel_func").get_active_text(),
+            'filter2' : c1.get_model()[c1.get_active_iter()][0],
+            'min2' : self.glade.get_widget("spn_min1").get_value()
         }
 
         client.autoremoveplus.set_config(config)
