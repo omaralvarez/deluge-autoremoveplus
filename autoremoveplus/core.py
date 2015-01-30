@@ -171,6 +171,7 @@ class Core(CorePluginBase):
         remove_data = self.config['remove_data']
         exemp_trackers = self.config['trackers']
         min_val = self.config['min']
+        min_val2 = self.config['min2']
 
         # Negative max means unlimited seeds are allowed, so don't do anything
         if max_seeds < 0: 
@@ -251,7 +252,7 @@ class Core(CorePluginBase):
             log.debug(filter_funcs.get(self.config['filter'], _get_ratio)((i,t)))
             log.debug(filter_funcs.get(self.config['filter2'], _get_ratio)((i,t)))
             if live: 
-                if filter_funcs.get(self.config['filter'], _get_ratio)((i,t)) >= min_val:
+                if sel_funcs.get(self.config['sel_func'])((filter_funcs.get(self.config['filter'], _get_ratio)((i,t)) >= min_val, filter_funcs.get(self.config['filter2'], _get_ratio)((i,t)) >= min_val2)):
                     try:
                         torrentmanager.remove(i, remove_data = remove_data)
                     except Exception, e: 
