@@ -81,7 +81,7 @@ sel_funcs = {
     'or' : lambda (a, b): a or b
 }
 
-live = True
+live = False
 
 class Core(CorePluginBase):
 
@@ -241,9 +241,16 @@ class Core(CorePluginBase):
             max_seeds -= len(ignored_torrents)
             if max_seeds < 0: max_seeds = 0 
         
-        # sort it according to our chosen method 
+        #Sort it according to our chosen method 
+        #By only one key
         #torrents.sort(key = filter_funcs.get(self.config['filter'], _get_ratio), reverse = False)
-        torrents.sort(key = lambda x : (filter_funcs.get(self.config['filter'], _get_ratio), filter_funcs.get(self.config['filter2'], _get_ratio)), reverse = False)
+
+        #By primary criteria and secondary
+        #torrents.sort(key = filter_funcs.get(self.config['filter2'], _get_ratio), reverse = False)
+        #torrents.sort(key = filter_funcs.get(self.config['filter'], _get_ratio), reverse = False)
+
+        #Alternate sort by primary criteria and secondary
+        torrents.sort(key = lambda x : (filter_funcs.get(self.config['filter'], _get_ratio)(x), filter_funcs.get(self.config['filter2'], _get_ratio)(x)), reverse = False)
 
         changed = False
         # remove these torrents
