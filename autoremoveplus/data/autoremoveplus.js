@@ -69,6 +69,31 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
         Deluge.plugins.autoremoveplus.ui.PreferencePage.superclass.initComponent.call(
           this);
 
+        this.intervalContainer = this.add({
+            xtype: 'container',
+            layout: 'hbox',
+            margins: '0 5 8 5',
+            items: [{
+                xtype: 'label',
+                margins: '5 5 0 0',
+                text: _('Check every: ')
+            },{
+                xtype: 'spinnerfield',
+                //anchor: '20%',
+                //margins: '0 0 0 0',
+                name: 'checkInterval',
+                fieldLabel: _('Check every'),
+                value: 1.0,
+                maxValue: 1000.0,
+                minValue: 0.0001,
+                allowDecimals: true,
+                decimalPrecision: 4,
+                incrementValue: 0.1,
+                alternateIncrementValue: 0.5,
+                flex: 0.2
+            }]
+        });
+
         this.maxSeedsContainer = this.add({
             xtype: 'container',
             layout: 'hbox',
@@ -99,6 +124,19 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             layout: 'hbox',
             margins: '0 5 8 5',
             items: [{
+                xtype: 'combo',
+                margins: '0 8 0 0',
+                mode: 'local',
+                valueField: 'func_id',
+                displayField: 'func_name',
+                //value: 0,
+                editable: false,
+                disabled: true,
+                triggerAction: 'all',
+               // autoWidth: true,
+                //boxMaxWidth: 20,
+                flex: 0.22
+            },{
                 xtype: 'label',
                 margins: '5 5 0 0',
                 text: _('Remove by: ')
@@ -128,6 +166,68 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
                 //anchor: '20%',
                 //margins: '0 0 0 0',
                 name: 'min',
+                fieldLabel: _('Min'),
+                value: 0.0,
+                maxValue: 1000.0,
+                minValue: 0.0,
+                allowDecimals: true,
+                decimalPrecision: 3,
+                incrementValue: 0.5,
+                alternateIncrementValue: 1.0,
+                flex: 0.35
+            }]
+        });
+
+        this.removeByContainer2 = this.add({
+            xtype: 'container',
+            layout: 'hbox',
+            margins: '0 5 8 5',
+            items: [{
+                xtype: 'combo',
+                margins: '0 8 0 0',
+                mode: 'local',
+                store: [
+                    [0, 'and'],
+                    [1, 'or']
+                ],
+                valueField: 'func_id',
+                displayField: 'func_name',
+                value: 0,
+                editable: true,
+                triggerAction: 'all',
+               // autoWidth: true,
+                //boxMaxWidth: 20,
+                flex: 0.22
+            },{
+                xtype: 'label',
+                margins: '5 5 0 0',
+                text: _('Remove by: ')
+            },{
+                xtype: 'combo',
+                margins: '0 8 0 0',
+                mode: 'local',
+                store: new Ext.data.ArrayStore({
+                    autoDestroy: true,
+                    idIndex: 0,
+                    fields: ['func_id','func_name']
+                }),
+                valueField: 'func_id',
+                displayField: 'func_name',
+                //value: 0,
+                editable: true,
+                triggerAction: 'all',
+               // autoWidth: true,
+                //boxMaxWidth: 20,
+                flex: 0.45
+            },{
+                xtype: 'label',
+                margins: '5 5 0 0',
+                text: _('Min: ')
+            },{
+                xtype: 'spinnerfield',
+                //anchor: '20%',
+                //margins: '0 0 0 0',
+                name: 'min2',
                 fieldLabel: _('Min'),
                 value: 0.0,
                 maxValue: 1000.0,

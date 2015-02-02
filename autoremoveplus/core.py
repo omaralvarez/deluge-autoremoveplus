@@ -81,7 +81,7 @@ sel_funcs = {
     'or' : lambda (a, b): a or b
 }
 
-live = False
+live = True
 
 class Core(CorePluginBase):
 
