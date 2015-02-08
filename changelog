@@ -1,3 +1,7 @@
+Version 0.4
+- Feature: Customizable removal interval. Times are expected as days.
+- Feature: Multiple removal criteria.
+
 Version 0.3
 - Feature: Minimum value to delete torrents according to ratio, seed time or age. Times are expected as days.
 - Feature: New filtering function seed time added.
