@@ -185,13 +185,13 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             items: [{
                 xtype: 'combo',
                 margins: '0 8 0 0',
-                mode: 'local',
+                mode: 'local', 
                 store: [
-                    [0, 'and'],
-                    [1, 'or']
+                    'and',
+                    'or'
                 ],
-                valueField: 'func_id',
-                displayField: 'func_name',
+                //valueField: 'func_id',
+                //displayField: 'func_name',
                 value: 0,
                 editable: true,
                 triggerAction: 'all',
@@ -406,8 +406,11 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             this.chkExemptCount.setValue(prefs['count_exempt']);
             this.chkRemoveData.setValue(prefs['remove_data']);
             this.loadTrackers(prefs['trackers']);
+            this.intervalContainer.getComponent(1).setValue(prefs['interval']);
             this.maxSeedsContainer.getComponent(1).setValue(prefs['max_seeds']);
-            this.removeByContainer.getComponent(3).setValue(prefs['min']);
+            this.removeByContainer.getComponent(4).setValue(prefs['min']);
+            this.removeByContainer2.getComponent(4).setValue(prefs['min2']);
+            this.removeByContainer2.getComponent(0).setValue(prefs['sel_func']);
           },
           scope: this
         });
@@ -415,8 +418,10 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
         deluge.client.autoremoveplus.get_remove_rules({
           success: function(rules) {
           	var data = [];
-          	var removeBy = this.removeByContainer.getComponent(1);
+          	var removeBy = this.removeByContainer.getComponent(2);
+            var removeBy2 = this.removeByContainer2.getComponent(2);
             var removeByStore = removeBy.getStore();
+            var removeByStore2 = removeBy2.getStore();
             var keys = Ext.keys(rules);
             for (var i = 0; i < keys.length; i++) {
 	            var key = keys[i];
@@ -425,6 +430,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
 	        }
             removeByStore.loadData(data);
             removeBy.setValue(this.preferences['filter']);
+            removeByStore2.loadData(data);
+            removeBy2.setValue(this.preferences['filter2']);
           },
           scope: this
         });
@@ -455,7 +462,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
           trackerList.push(name);
         }
 
-        var filterVal = this.removeByContainer.getComponent(1).getValue();
+        var filterVal = this.removeByContainer.getComponent(2).getValue();
+        var filterVal2 = this.removeByContainer2.getComponent(2).getValue();
 
         var prefs = {
           remove_data: this.chkRemoveData.getValue(),
@@ -463,14 +471,22 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
           trackers: trackerList,
           max_seeds: this.maxSeedsContainer.getComponent(1).getValue(),
           filter: filterVal,
-          min: this.removeByContainer.getComponent(3).getValue()
+          filter2: filterVal2,
+          min: this.removeByContainer.getComponent(4).getValue(),
+          min2: this.removeByContainer2.getComponent(4).getValue(),
+          sel_func: this.removeByContainer2.getComponent(0).getValue(),
+          interval: this.intervalContainer.getComponent(1).getValue()
         };
 
         apply |= prefs['remove_data'] != this.preferences['remove_data'];
         apply |= prefs['count_exempt'] != this.preferences['count_exempt'];
         apply |= prefs['max_seeds'] != this.preferences['max_seeds'];
         apply |= prefs['filter'] != this.preferences['filter'];
+        apply |= prefs['filter2'] != this.preferences['filter2'];
         apply |= prefs['min'] != this.preferences['min'];
+        apply |= prefs['min2'] != this.preferences['min2'];
+        apply |= prefs['sel_func'] != this.preferences['sel_func'];
+        apply |= prefs['interval'] != this.preferences['interval'];
         apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['trackers'],
             this.preferences['trackers']);
 
