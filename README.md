@@ -11,7 +11,7 @@ Features
 --------
 - Select how many torrents are allowed at the same time.
 - Choose to remove them based on multiple criteria age, seed time or ratio.
-- Select if torrents have to fulfill both of either criteria.
+- Select if torrents have to fulfill both or either criteria.
 - Delete torrents in order (e.g. delete torrents with highest ratio first).
 - Don't remove torrents if they don't reach a minimum time (in days) or ratio.
 - Choose the removal interval.
