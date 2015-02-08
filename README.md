@@ -24,30 +24,30 @@ Usage
 -----
 - Look for torrents to remove every day:
  
-> Check every: 1
+    > Check every: 1
 
 - Look for torrents to remove every hour: 
 
-> Check every: 0.0416
+    > Check every: 0.0416
 
 - Remove every torrent that meets minimum criteria: 
 
-> Maximum torrents: 0
+    > Maximum torrents: 0
 
 - Don't remove torrents unless Deluge has over 500: 
 
-> Maximum torrents: 500
+    > Maximum torrents: 500
 
 - Remove torrents that have a ratio over 2.0 and have been seeding for at least 4 days: 
 
-> Remove by: Ratio, Min: 2.0, and, Remove by: Seed Time, Min: 4  
+    > Remove by: Ratio, Min: 2.0, and, Remove by: Seed Time, Min: 4  
 
 - Remove torrents that have a ratio over 2.0 or have been seeding for at least 4 days: 
 
-> Remove by: Ratio, Min: 2.0, or, Remove by: Seed Time, Min: 4
+    > Remove by: Ratio, Min: 2.0, or, Remove by: Seed Time, Min: 4
 
 - Remove torrents only according to only first criteria: 
 
-> Remove by: Ratio, Min: 2.0, and, Remove by: Seed Time, Min: 0 (second condition needs to be always true with and)
+    > Remove by: Ratio, Min: 2.0, and, Remove by: Seed Time, Min: 0 (second condition needs to be always true with and)
 
 - The rest of the options are pretty self explanatory 
