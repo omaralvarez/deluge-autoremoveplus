@@ -58,7 +58,7 @@ DEFAULT_PREFS = {
     'trackers' : [],
     'min' : 0.0,
     'interval' : 0.5,
-    'sel_func' : 'or',
+    'sel_func' : 'and',
     'filter2' : 'func_added',
     'min2' : 0.0
 }
