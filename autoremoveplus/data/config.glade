@@ -51,7 +51,7 @@
                             <property name="secondary_icon_activatable">False</property>
                             <property name="primary_icon_sensitive">True</property>
                             <property name="secondary_icon_sensitive">True</property>
-                            <property name="adjustment">0.5 0.0001 1000 0.1 0.5 0</property>
+                            <property name="adjustment">0.5 0.0001 1000 0.10000000000000001 0.5 0</property>
                             <property name="digits">4</property>
                             <property name="numeric">True</property>
                           </widget>
@@ -126,6 +126,65 @@
                       </packing>
                     </child>
                     <child>
+                      <widget class="GtkHBox" id="hbox6">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <widget class="GtkLabel" id="label10">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Minimum HDD Space:</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkSpinButton" id="spn_min2">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip" translatable="yes">Minimum age and seed time are measured in days</property>
+                            <property name="invisible_char">●</property>
+                            <property name="invisible_char_set">True</property>
+                            <property name="primary_icon_activatable">False</property>
+                            <property name="secondary_icon_activatable">False</property>
+                            <property name="primary_icon_sensitive">True</property>
+                            <property name="secondary_icon_sensitive">True</property>
+                            <property name="adjustment">-1 -1 10000 0.5 10 0</property>
+                            <property name="digits">3</property>
+                            <property name="numeric">True</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="padding">5</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label11">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">GB (-1 for infinite)</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="padding">4</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="GtkHBox" id="hbox1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -192,7 +251,7 @@
                             <property name="secondary_icon_activatable">False</property>
                             <property name="primary_icon_sensitive">True</property>
                             <property name="secondary_icon_sensitive">True</property>
-                            <property name="adjustment">0 0 1000 0.5 10 0</property>
+                            <property name="adjustment">0 0 10000 0.5 10 0</property>
                             <property name="digits">3</property>
                             <property name="numeric">True</property>
                           </widget>
@@ -208,7 +267,7 @@
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="padding">4</property>
-                        <property name="position">2</property>
+                        <property name="position">3</property>
                       </packing>
                     </child>
                     <child>
@@ -296,7 +355,7 @@
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="padding">4</property>
-                        <property name="position">3</property>
+                        <property name="position">4</property>
                       </packing>
                     </child>
                     <child>
@@ -377,7 +436,7 @@
                         <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="padding">4</property>
-                        <property name="position">4</property>
+                        <property name="position">5</property>
                       </packing>
                     </child>
                     <child>
@@ -392,7 +451,7 @@
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="padding">4</property>
-                        <property name="position">5</property>
+                        <property name="position">6</property>
                       </packing>
                     </child>
                     <child>
@@ -407,7 +466,7 @@
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="padding">4</property>
-                        <property name="position">6</property>
+                        <property name="position">7</property>
                       </packing>
                     </child>
                   </widget>

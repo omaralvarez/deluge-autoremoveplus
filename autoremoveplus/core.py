@@ -59,7 +59,8 @@ DEFAULT_PREFS = {
     'interval': 0.5,
     'sel_func': 'and',
     'filter2': 'func_added',
-    'min2': 0.0
+    'min2': 0.0,
+    'hdd_space': -1.0
 }
 
 
@@ -171,8 +172,28 @@ class Core(CorePluginBase):
 
         self.torrent_states.save()
 
+    def check_min_space(self):
+        min_hdd_space = self.config['hdd_space']
+        real_hdd_space = component.get("Core").get_free_space()/1073741824.0
+
+        log.debug("Space: %s/%s" % (real_hdd_space, min_hdd_space))
+
+        # if deactivated delete torrents
+        if min_hdd_space < 0.0:
+            return False
+
+        # if hdd space below minimum delete torrents
+        if real_hdd_space > min_hdd_space:
+            return True
+        else:
+            return False
+
     # we don't use args or kwargs it just allows callbacks to happen cleanly
     def do_remove(self, *args, **kwargs):
+        # check if free disk space below minimum
+        if self.check_min_space():
+            return
+
         log.debug("AutoRemovePlus: do_remove")
 
         max_seeds = self.config['max_seeds']

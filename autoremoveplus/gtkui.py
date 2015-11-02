@@ -48,10 +48,11 @@ import deluge.common
 
 from common import get_resource
 
+
 class GtkUI(GtkPluginBase):
-    
+
     def enable(self):
-        log.debug("Enabling AutoRemovePlus...")    
+        log.debug("Enabling AutoRemovePlus...")
         self.glade = gtk.glade.XML(get_resource("config.glade"))
         component.get("Preferences").add_page("AutoRemovePlus", self.glade.get_widget("prefs_box"))
         component.get("PluginManager").register_hook("on_apply_prefs", self.on_apply_prefs)
@@ -65,7 +66,7 @@ class GtkUI(GtkPluginBase):
         self.sel_func_store.append(["or"])
 
         cell = gtk.CellRendererText()
-        
+
         cbo_remove = self.glade.get_widget("cbo_remove")
         cbo_remove.pack_start(cell, True)
         cbo_remove.add_attribute(cell, 'text', 1)
@@ -80,12 +81,12 @@ class GtkUI(GtkPluginBase):
         cbo_sel_func.set_model(self.sel_func_store)
         cbo_sel_func.set_active(0)
         self.glade.get_widget("dummy").set_model(self.sel_func_store)
-        
+
         self._new_tracker = self.glade.get_widget("new_tracker")
         self._new_tracker.connect("clicked", self._do_new_tracker)
         self._delete_tracker = self.glade.get_widget("delete_tracker")
         self._delete_tracker.connect("clicked", self._do_delete_tracker)
-        
+
         self._blk_trackers = self.glade.get_widget("blk_trackers")
         self._view = self._build_view()
         window = gtk.ScrolledWindow()
@@ -95,14 +96,15 @@ class GtkUI(GtkPluginBase):
         self._blk_trackers.add(window)
         self._blk_trackers.show_all()
 
-        def on_menu_show(menu, (menu_item, toggled)): 
-            def set_ignored(ignored): 
-                # set_active will raise the 'toggled'/'activated' signals so block it to not reset the value
-                menu_item.handler_block (toggled)
-                menu_item.set_active(False not in ignored) 
-                menu_item.handler_unblock (toggled)
+        def on_menu_show(menu, (menu_item, toggled)):
+            def set_ignored(ignored):
+                # set_active will raise the 'toggled'/'activated' signals
+                # so block it to not reset the value
+                menu_item.handler_block(toggled)
+                menu_item.set_active(False not in ignored)
+                menu_item.handler_unblock(toggled)
 
-            client.autoremoveplus.get_ignore([t for t in component.get("TorrentView").get_selected_torrents() ]).addCallback(set_ignored)    
+            client.autoremoveplus.get_ignore([t for t in component.get("TorrentView").get_selected_torrents() ]).addCallback(set_ignored)
 
         def on_menu_toggled(menu):
             client.autoremoveplus.set_ignore(component.get("TorrentView").get_selected_torrents(), menu.get_active())
@@ -126,12 +128,12 @@ class GtkUI(GtkPluginBase):
 
         torrentmenu = component.get("MenuBar").torrentmenu
         torrentmenu.remove(self.menu)
-        torrentmenu.disconnect(self.show_sig) 
-        torrentmenu.disconnect(self.realize_sig) 
+        torrentmenu.disconnect(self.show_sig)
+        torrentmenu.disconnect(self.realize_sig)
 
         del self.rules
         del self.sel_func_store
-        del self.menu 
+        del self.menu
         del self.show_sig
         del self.realize_sig
 
@@ -140,37 +142,38 @@ class GtkUI(GtkPluginBase):
         #self._view.set_cursor("3", start_editing=True)
         path = self.lstore.get_path(new_row)
         self._view.set_cursor(path, focus_column=self._view.get_column(0), start_editing=True)
-        
+
     def _do_delete_tracker(self,button):
         selection = self._view.get_selection()
         model, paths = selection.get_selected_rows()
-        
+
         for path in paths:
             iter = model.get_iter(path)
             model.remove(iter)
-        
+
     def on_apply_prefs(self):
         log.debug("applying prefs for AutoRemovePlus")
-        #log.debug("Min: %f" % (self.glade.get_widget("spn_min").get_value()))
+        # log.debug("Min: %f" % (self.glade.get_widget("spn_min").get_value()))
         c = self.glade.get_widget("cbo_remove")
         c1 = self.glade.get_widget("cbo_remove1")
-        
+
         trackers = []
-        
+
         for row in self._view.get_model():
             trackers.append(row[0])
 
         config = {
-            "max_seeds" : self.glade.get_widget("spn_seeds").get_value_as_int(),
-            'filter' : c.get_model()[c.get_active_iter()][0],
-            'count_exempt' : self.glade.get_widget('chk_count').get_active(),
-            'remove_data' : self.glade.get_widget('chk_remove_data').get_active(),
-            'trackers' : trackers,
-            'min' : self.glade.get_widget("spn_min").get_value(),
-            'interval' : self.glade.get_widget("spn_interval").get_value(),
-            'sel_func' : self.glade.get_widget("cbo_sel_func").get_active_text(),
-            'filter2' : c1.get_model()[c1.get_active_iter()][0],
-            'min2' : self.glade.get_widget("spn_min1").get_value()
+            "max_seeds": self.glade.get_widget("spn_seeds").get_value_as_int(),
+            'filter': c.get_model()[c.get_active_iter()][0],
+            'count_exempt': self.glade.get_widget('chk_count').get_active(),
+            'remove_data': self.glade.get_widget('chk_remove_data').get_active(),
+            'trackers': trackers,
+            'min': self.glade.get_widget("spn_min").get_value(),
+            'interval': self.glade.get_widget("spn_interval").get_value(),
+            'sel_func': self.glade.get_widget("cbo_sel_func").get_active_text(),
+            'filter2': c1.get_model()[c1.get_active_iter()][0],
+            'min2': self.glade.get_widget("spn_min1").get_value(),
+            'hdd_space': self.glade.get_widget("spn_min2").get_value()
         }
 
         client.autoremoveplus.set_config(config)
@@ -178,50 +181,51 @@ class GtkUI(GtkPluginBase):
     def on_show_prefs(self):
         client.autoremoveplus.get_config().addCallback(self.cb_get_config)
 
-    def cb_get_rules(self, rules): 
-        self.rules.clear() 
+    def cb_get_rules(self, rules):
+        self.rules.clear()
 
-        for k, v in rules.iteritems(): 
-            self.rules.append((k,v))
+        for k, v in rules.iteritems():
+            self.rules.append((k, v))
 
     def cb_get_config(self, config):
         self.glade.get_widget("spn_seeds").set_value(config["max_seeds"])
         self.glade.get_widget("spn_min").set_value(config["min"])
         self.glade.get_widget("spn_min1").set_value(config["min2"])
+        self.glade.get_widget("spn_min2").set_value(config["hdd_space"])
         self.glade.get_widget("chk_count").set_active(config['count_exempt'])
         self.glade.get_widget("chk_remove_data").set_active(config['remove_data'])
         self.glade.get_widget("spn_interval").set_value(config["interval"])
-        
+
         self.lstore.clear()
         trackers = config['trackers']
         for tracker in trackers:
             self.lstore.append([tracker])
-        
+
         selected = config['filter']
 
-        for i, row in enumerate(self.rules): 
-            if row[0] == selected: 
-                self.glade.get_widget("cbo_remove").set_active(i) 
+        for i, row in enumerate(self.rules):
+            if row[0] == selected:
+                self.glade.get_widget("cbo_remove").set_active(i)
                 break
         else:
             self.glade.get_widget("cbo_remove").set_active(0)
 
 
         selected = config['filter2']
-            
-        for i, row in enumerate(self.rules): 
-            if row[0] == selected: 
-                self.glade.get_widget("cbo_remove1").set_active(i) 
+
+        for i, row in enumerate(self.rules):
+            if row[0] == selected:
+                self.glade.get_widget("cbo_remove1").set_active(i)
                 break
         else:
             self.glade.get_widget("cbo_remove1").set_active(0)
 
-        selected = config['sel_func']    
+        selected = config['sel_func']
 
-        for i, row in enumerate(self.sel_func_store): 
+        for i, row in enumerate(self.sel_func_store):
 
-            if row[0] == selected: 
-                self.glade.get_widget("cbo_sel_func").set_active(i) 
+            if row[0] == selected:
+                self.glade.get_widget("cbo_sel_func").set_active(i)
                 break
         else:
             self.glade.get_widget("cbo_sel_func").set_active(0)
@@ -229,19 +233,14 @@ class GtkUI(GtkPluginBase):
     def _build_view(self):
 
         self.lstore = gtk.ListStore(str)
-        #self.lstore.append(['Scene'])
-        #self.lstore.append(['Scene2'])
-        view = gtk.TreeView(model = self.lstore)
+        view = gtk.TreeView(model=self.lstore)
         cr = gtk.CellRendererText()
         cr.set_property("editable", True)
         col = gtk.TreeViewColumn(_("Name"), cr, text=0)
-        #col.set_resizable(True)
-        cr.connect("edited",self._text_edited)
-        #col.set_attributes(cr, editable=0)
-        #col.add_attribute(cr, "editable", 0)
+        cr.connect("edited", self._text_edited)
         view.append_column(col)
-        
+
         return view
-        
+
     def _text_edited(self, widget, path, text):
         self.lstore[path][0] = text

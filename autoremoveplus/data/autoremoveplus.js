@@ -45,10 +45,10 @@ Deluge.plugins.autoremoveplus.MODULE_NAME = 'autoremoveplus';
 Deluge.plugins.autoremoveplus.DISPLAY_NAME = _('AutoRemovePlus');
 
 Deluge.plugins.autoremoveplus.util.arrayEquals = function(a, b) {
-    if (a.length != b.length) 
+    if (a.length != b.length)
         return false;
     for (var i = 0; i < b.length; i++)
-        if (a[i] !== b[i]) 
+        if (a[i] !== b[i])
             return false;
     return true;
 };
@@ -119,6 +119,33 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             }]
         });
 
+        this.minHDDSpaceContainer = this.add({
+            xtype: 'container',
+            layout: 'hbox',
+            margins: '0 5 8 5',
+            items: [{
+                xtype: 'label',
+                margins: '5 5 0 0',
+                text: _('Min. HDD Space: ')
+            },{
+                xtype: 'spinnerfield',
+                name: 'minHDDSpace',
+                fieldLabel: _('Min. HDD Space'),
+                value: -1.0,
+                maxValue: 10000.0,
+                minValue: -1.0,
+                allowDecimals: true,
+                decimalPrecision: 3,
+                incrementValue: 0.5,
+                alternateIncrementValue: 1.0,
+                flex: 0.45
+            }, {
+                xtype: 'label',
+                margins: '5 0 0 5',
+                text: _('GB (-1 for infinite)')
+            }]
+        });
+
         this.removeByContainer = this.add({
             xtype: 'container',
             layout: 'hbox',
@@ -168,7 +195,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
                 name: 'min',
                 fieldLabel: _('Min'),
                 value: 0.0,
-                maxValue: 1000.0,
+                maxValue: 10000.0,
                 minValue: 0.0,
                 allowDecimals: true,
                 decimalPrecision: 3,
@@ -185,7 +212,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             items: [{
                 xtype: 'combo',
                 margins: '0 8 0 0',
-                mode: 'local', 
+                mode: 'local',
                 store: [
                     'and',
                     'or'
@@ -230,7 +257,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
                 name: 'min2',
                 fieldLabel: _('Min'),
                 value: 0.0,
-                maxValue: 1000.0,
+                maxValue: 10000.0,
                 minValue: 0.0,
                 allowDecimals: true,
                 decimalPrecision: 3,
@@ -317,7 +344,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             items: [{
                 xtype: 'button',
                 text: ' Add Tracker ',
-                margins: '0 5 0 0' 
+                margins: '0 5 0 0'
             }, {
                 xtype: 'button',
                 text: ' Delete Tracker '
@@ -380,11 +407,11 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
         });
         this.tblTrackers.stopEditing();
         store.insert(0, t);
-        this.tblTrackers.startEditing(0, 0); 
+        this.tblTrackers.startEditing(0, 0);
     },
 
     deleteTracker: function() {
-        var selections = this.tblTrackers.getSelectionModel().getSelections(); 
+        var selections = this.tblTrackers.getSelectionModel().getSelections();
         var store = this.tblTrackers.getStore();
 
         this.tblTrackers.stopEditing();
@@ -408,6 +435,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             this.loadTrackers(prefs['trackers']);
             this.intervalContainer.getComponent(1).setValue(prefs['interval']);
             this.maxSeedsContainer.getComponent(1).setValue(prefs['max_seeds']);
+            this.minHDDSpaceContainer.getComponent(1).setValue(prefs['hdd_space']);
             this.removeByContainer.getComponent(4).setValue(prefs['min']);
             this.removeByContainer2.getComponent(4).setValue(prefs['min2']);
             this.removeByContainer2.getComponent(0).setValue(prefs['sel_func']);
@@ -470,6 +498,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
           count_exempt: this.chkExemptCount.getValue(),
           trackers: trackerList,
           max_seeds: this.maxSeedsContainer.getComponent(1).getValue(),
+          hdd_space: this.minHDDSpaceContainer.getComponent(1).getValue(),
           filter: filterVal,
           filter2: filterVal2,
           min: this.removeByContainer.getComponent(4).getValue(),
@@ -481,6 +510,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
         apply |= prefs['remove_data'] != this.preferences['remove_data'];
         apply |= prefs['count_exempt'] != this.preferences['count_exempt'];
         apply |= prefs['max_seeds'] != this.preferences['max_seeds'];
+        apply |= prefs['hdd_space'] != this.preferences['hdd_space'];
         apply |= prefs['filter'] != this.preferences['filter'];
         apply |= prefs['filter2'] != this.preferences['filter2'];
         apply |= prefs['min'] != this.preferences['min'];
@@ -496,7 +526,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             scope: this
           });
         }
-    }   
+    }
 
 });
 
@@ -515,8 +545,8 @@ Deluge.plugins.autoremoveplus.Plugin = Ext.extend(Deluge.Plugin, {
 
             listeners: {
                 checkchange: function(checkitem,checked) {
-                    //console.log('Torrent checked...'); 
-                    console.log(checked); 
+                    //console.log('Torrent checked...');
+                    console.log(checked);
                     deluge.client.autoremoveplus.set_ignore(deluge.torrents.getSelectedIds(),checked);
                 }
             }
