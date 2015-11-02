@@ -63,17 +63,19 @@ DEFAULT_PREFS = {
     'min2' : 0.0
 }
 
-def _get_ratio((i, t)): 
+def _get_ratio((i, t)):
     return t.get_ratio()
 
-def _date_added((i, t)): 
-    #return -t.time_added 
+def _date_added((i, t)):
+    #return -t.time_added
     return (time.time()-t.time_added)/86400.0
 
-filter_funcs = { 
-    'func_ratio' : _get_ratio, 
+#Add key label also to get_remove_rules():141
+filter_funcs = {
+    'func_ratio' : _get_ratio,
     'func_added' : lambda (i, t): (time.time()-t.time_added)/86400.0,
-    'func_seed_time' : lambda (i, t): t.get_status(['seeding_time'])['seeding_time']/86400.0
+    'func_seed_time' : lambda (i, t): t.get_status(['seeding_time'])['seeding_time']/86400.0,
+    'func_seeders' : lambda (i, t): t.get_status(['total_seeds'])['total_seeds']
 }
 
 sel_funcs = {
@@ -89,21 +91,21 @@ class Core(CorePluginBase):
         log.debug ("AutoRemovePlus: Enabled")
         self.config = deluge.configmanager.ConfigManager("autoremoveplus.conf", DEFAULT_PREFS)
         self.torrent_states = deluge.configmanager.ConfigManager("autoremoveplusstates.conf", {})
-        
+
         # Safe after loading to have a default configuration if no gtkui is available
         self.config.save()
         self.torrent_states.save()
-        
+
         #eventmanager = component.get("EventManager")
         #eventmanager.register_event_handler("TorrentFinishedEvent", self.do_remove)
 
-        # it appears that if the plugin is enabled on boot then it is called before the 
-        # torrents are properly loaded and so do_remove receives an empty list. So we must 
-        # listen to SessionStarted for when deluge boots but we still have apply_now so that 
+        # it appears that if the plugin is enabled on boot then it is called before the
+        # torrents are properly loaded and so do_remove receives an empty list. So we must
+        # listen to SessionStarted for when deluge boots but we still have apply_now so that
         # if the plugin is enabled mid-program do_remove is still run
-        #eventmanager.register_event_handler("SessionStartedEvent", self.do_remove)  
+        #eventmanager.register_event_handler("SessionStartedEvent", self.do_remove)
         self.looping_call = LoopingCall(self.do_remove)
-        deferLater(reactor, 5, self.start_looping)     
+        deferLater(reactor, 5, self.start_looping)
 
     def disable(self):
         #eventmanager = component.get("EventManager")
@@ -135,38 +137,39 @@ class Core(CorePluginBase):
         """Returns the config dictionary"""
         return self.config.config
 
-    @export 
-    def get_remove_rules(self): 
+    @export
+    def get_remove_rules(self):
         return {
-            'func_ratio' : 'Ratio',  
+            'func_ratio' : 'Ratio',
             'func_added' : 'Date Added',
-            'func_seed_time' : 'Seed Time'
+            'func_seed_time' : 'Seed Time',
+            'func_seeders' : 'Seeders'
         }
 
     @export
-    def get_ignore(self, torrent_ids): 
-        if not hasattr(torrent_ids, '__iter__'): 
-            torrent_ids = [torrent_ids] 
+    def get_ignore(self, torrent_ids):
+        if not hasattr(torrent_ids, '__iter__'):
+            torrent_ids = [torrent_ids]
 
-        return [ self.torrent_states.config.get(t, False) for t in torrent_ids ] 
+        return [ self.torrent_states.config.get(t, False) for t in torrent_ids ]
 
-    @export 
-    def set_ignore(self, torrent_ids, ignore = True): 
+    @export
+    def set_ignore(self, torrent_ids, ignore = True):
         log.debug ("AutoRemovePlus: Setting torrents %s to ignore=%s" % (torrent_ids, ignore))
 
-        if not hasattr(torrent_ids, '__iter__'): 
-            torrent_ids = [torrent_ids] 
+        if not hasattr(torrent_ids, '__iter__'):
+            torrent_ids = [torrent_ids]
 
-        for t in torrent_ids: 
-            self.torrent_states[t] = ignore 
+        for t in torrent_ids:
+            self.torrent_states[t] = ignore
 
         self.torrent_states.save()
 
     # we don't use args or kwargs it just allows callbacks to happen cleanly
-    def do_remove(self, *args, **kwargs): 
+    def do_remove(self, *args, **kwargs):
         log.debug("AutoRemovePlus: do_remove")
 
-        max_seeds = self.config['max_seeds'] 
+        max_seeds = self.config['max_seeds']
         count_exempt = self.config['count_exempt']
         remove_data = self.config['remove_data']
         exemp_trackers = self.config['trackers']
@@ -174,23 +177,23 @@ class Core(CorePluginBase):
         min_val2 = self.config['min2']
 
         # Negative max means unlimited seeds are allowed, so don't do anything
-        if max_seeds < 0: 
-            return 
+        if max_seeds < 0:
+            return
 
         torrentmanager = component.get("TorrentManager")
         torrent_ids = torrentmanager.get_torrent_list()
 
         log.debug("Number of torrents: {0}".format(len(torrent_ids)))
-                  
-        # If there are less torrents present than we allow then there can be nothing to do 
-        if len(torrent_ids) <= max_seeds: 
-            return 
-        
+
+        # If there are less torrents present than we allow then there can be nothing to do
+        if len(torrent_ids) <= max_seeds:
+            return
+
         torrents = []
         ignored_torrents = []
 
-        # relevant torrents to us exist and are finished 
-        for i in torrent_ids: 
+        # relevant torrents to us exist and are finished
+        for i in torrent_ids:
             t = torrentmanager.torrents.get(i, None)
 
             #log.debug("Time added: %f" % (t.time_added))
@@ -199,16 +202,16 @@ class Core(CorePluginBase):
 
             try:
                 finished = t.is_finished
-            except: 
+            except:
                 continue
-            else: 
-                if not finished: 
+            else:
+                if not finished:
                     continue
 
             #if not (t.state == "Seeding"):
             #    continue
 
-            try: 
+            try:
                 ignored = self.torrent_states[i]
             except KeyError:
                 ignored = False
@@ -230,18 +233,18 @@ class Core(CorePluginBase):
 
         log.debug("Number of finished torrents: {0}".format(len(torrents)))
         log.debug("Number of ignored torrents: {0}".format(len(ignored_torrents)))
-        
+
 
         # now that we have trimmed active torrents check again to make sure we still need to proceed
-        if len(torrents) + (len(ignored_torrents) if count_exempt else 0) <= max_seeds: 
-            return 
+        if len(torrents) + (len(ignored_torrents) if count_exempt else 0) <= max_seeds:
+            return
 
         # if we are counting ignored torrents towards our maximum then these have to come off the top of our allowance
-        if count_exempt: 
+        if count_exempt:
             max_seeds -= len(ignored_torrents)
-            if max_seeds < 0: max_seeds = 0 
-        
-        #Sort it according to our chosen method 
+            if max_seeds < 0: max_seeds = 0
+
+        #Sort it according to our chosen method
         #By only one key
         #torrents.sort(key = filter_funcs.get(self.config['filter'], _get_ratio), reverse = False)
 
@@ -253,24 +256,25 @@ class Core(CorePluginBase):
         torrents.sort(key = lambda x : (filter_funcs.get(self.config['filter'], _get_ratio)(x), filter_funcs.get(self.config['filter2'], _get_ratio)(x)), reverse = False)
 
         changed = False
+
         # remove these torrents
-        for i, t in torrents[max_seeds:]: 
+        for i, t in torrents[max_seeds:]:
             log.debug("AutoRemovePlus: Remove torrent %s, %s" % (i, t.get_status(['name'])['name']))
             log.debug(filter_funcs.get(self.config['filter'], _get_ratio)((i,t)))
             log.debug(filter_funcs.get(self.config['filter2'], _get_ratio)((i,t)))
-            if live: 
+            if live:
                 if sel_funcs.get(self.config['sel_func'])((filter_funcs.get(self.config['filter'], _get_ratio)((i,t)) >= min_val, filter_funcs.get(self.config['filter2'], _get_ratio)((i,t)) >= min_val2)):
                     try:
                         torrentmanager.remove(i, remove_data = remove_data)
-                    except Exception, e: 
+                    except Exception, e:
                         log.warn("AutoRemovePlus: Problems removing torrent: %s", e)
 
-                    try: 
-                        del self.torrent_states.config[i] 
-                    except KeyError: 
+                    try:
+                        del self.torrent_states.config[i]
+                    except KeyError:
                         pass
-                    else: 
+                    else:
                         changed = True
-        if changed: 
+
+        if changed:
             self.torrent_states.save()
-         
