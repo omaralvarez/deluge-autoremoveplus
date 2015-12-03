@@ -96,6 +96,8 @@ class GtkUI(GtkPluginBase):
         self._blk_trackers.add(window)
         self._blk_trackers.show_all()
 
+        self.glade.get_widget("chk_remove").connect("toggled", self.on_click_remove)
+
         def on_menu_show(menu, (menu_item, toggled)):
             def set_ignored(ignored):
                 # set_active will raise the 'toggled'/'activated' signals
@@ -137,6 +139,9 @@ class GtkUI(GtkPluginBase):
         del self.show_sig
         del self.realize_sig
 
+    def on_click_remove(self,check):
+        self.glade.get_widget("chk_remove_data").set_sensitive(check.get_active())
+
     def _do_new_tracker(self,button):
         new_row = self.lstore.append(["New Tracker"])
         #self._view.set_cursor("3", start_editing=True)
@@ -173,7 +178,8 @@ class GtkUI(GtkPluginBase):
             'sel_func': self.glade.get_widget("cbo_sel_func").get_active_text(),
             'filter2': c1.get_model()[c1.get_active_iter()][0],
             'min2': self.glade.get_widget("spn_min1").get_value(),
-            'hdd_space': self.glade.get_widget("spn_min2").get_value()
+            'hdd_space': self.glade.get_widget("spn_min2").get_value(),
+            'remove': self.glade.get_widget('chk_remove').get_active()
         }
 
         client.autoremoveplus.set_config(config)
@@ -195,6 +201,7 @@ class GtkUI(GtkPluginBase):
         self.glade.get_widget("chk_count").set_active(config['count_exempt'])
         self.glade.get_widget("chk_remove_data").set_active(config['remove_data'])
         self.glade.get_widget("spn_interval").set_value(config["interval"])
+        self.glade.get_widget("chk_remove").set_active(config['remove'])
 
         self.lstore.clear()
         trackers = config['trackers']

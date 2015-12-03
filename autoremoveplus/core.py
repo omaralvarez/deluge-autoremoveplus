@@ -60,7 +60,8 @@ DEFAULT_PREFS = {
     'sel_func': 'and',
     'filter2': 'func_added',
     'min2': 0.0,
-    'hdd_space': -1.0
+    'hdd_space': -1.0,
+    'remove': True
 }
 
 
@@ -188,6 +189,28 @@ class Core(CorePluginBase):
         else:
             return False
 
+    def pause_torrent(self, torrent):
+        try:
+            torrent.pause()
+        except Exception, e:
+            log.warn(
+                "AutoRemovePlus: Problems pausing torrent: %s", e
+            )
+
+    def remove_torrent(self, torrentmanager, tid, remove_data):
+        try:
+            torrentmanager.remove(tid, remove_data=remove_data)
+        except Exception, e:
+            log.warn(
+                "AutoRemovePlus: Problems removing torrent: %s", e
+            )
+        try:
+            del self.torrent_states.config[tid]
+        except KeyError:
+            return False
+        else:
+            return True
+
     # we don't use args or kwargs it just allows callbacks to happen cleanly
     def do_remove(self, *args, **kwargs):
         # check if free disk space below minimum
@@ -202,6 +225,7 @@ class Core(CorePluginBase):
         exemp_trackers = self.config['trackers']
         min_val = self.config['min']
         min_val2 = self.config['min2']
+        remove = self.config['remove']
 
         # Negative max means unlimited seeds are allowed, so don't do anything
         if max_seeds < 0:
@@ -285,7 +309,7 @@ class Core(CorePluginBase):
 
         changed = False
 
-        # remove these torrents
+        # remove or pause these torrents
         for i, t in torrents[max_seeds:]:
             log.debug(
                 "AutoRemovePlus: Remove torrent %s, %s"
@@ -298,29 +322,26 @@ class Core(CorePluginBase):
                 filter_funcs.get(self.config['filter2'], _get_ratio)((i, t))
             )
             if live:
+                # Get result of first condition test
                 filter_1 = filter_funcs.get(
                     self.config['filter'],
                     _get_ratio
                 )((i, t)) >= min_val
+                # Get result of second condition test
                 filter_2 = filter_funcs.get(
                     self.config['filter2'], _get_ratio
                 )((i, t)) >= min_val2
+                # If logical function is satisfied remove or pause torrent
                 if sel_funcs.get(self.config['sel_func'])((
                     filter_1,
                     filter_2
                 )):
-                    try:
-                        torrentmanager.remove(i, remove_data=remove_data)
-                    except Exception, e:
-                        log.warn(
-                            "AutoRemovePlus: Problems removing torrent: %s", e
-                        )
-                    try:
-                        del self.torrent_states.config[i]
-                    except KeyError:
-                        pass
+                    if not remove:
+                        self.pause_torrent(t)
                     else:
-                        changed = True
+                        if self.remove_torrent(torrentmanager, i, remove_data):
+                            changed = True
 
+        # If a torrent exemption state has been removed save changes
         if changed:
             self.torrent_states.save()
