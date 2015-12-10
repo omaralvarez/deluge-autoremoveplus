@@ -185,7 +185,7 @@ class Core(CorePluginBase):
 
         # if hdd space below minimum delete torrents
         if real_hdd_space > min_hdd_space:
-            return True
+            return True # there is enough space
         else:
             return False
 
@@ -213,10 +213,6 @@ class Core(CorePluginBase):
 
     # we don't use args or kwargs it just allows callbacks to happen cleanly
     def do_remove(self, *args, **kwargs):
-        # check if free disk space below minimum
-        if self.check_min_space():
-            return
-
         log.debug("AutoRemovePlus: do_remove")
 
         max_seeds = self.config['max_seeds']
@@ -311,6 +307,11 @@ class Core(CorePluginBase):
 
         # remove or pause these torrents
         for i, t in torrents[max_seeds:]:
+            
+            # check if free disk space below minimum
+            if self.check_min_space():
+                break # break the loop, we have enough space
+
             log.debug(
                 "AutoRemovePlus: Remove torrent %s, %s"
                 % (i, t.get_status(['name'])['name'])
