@@ -3,3 +3,4 @@
 build/
 dist/
 AutoRemovePlus.egg-info/
+.DS_Store

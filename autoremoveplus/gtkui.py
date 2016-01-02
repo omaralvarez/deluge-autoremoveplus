@@ -58,9 +58,11 @@ class GtkUI(GtkPluginBase):
         component.get("PluginManager").register_hook("on_apply_prefs", self.on_apply_prefs)
         component.get("PluginManager").register_hook("on_show_prefs", self.on_show_prefs)
 
+        # Create and fill remove rule list
         self.rules = gtk.ListStore(str, str)
         client.autoremoveplus.get_remove_rules().addCallback(self.cb_get_rules)
 
+        # Fill list with logical functions
         self.sel_func_store = gtk.ListStore(str)
         self.sel_func_store.append(["and"])
         self.sel_func_store.append(["or"])
@@ -143,10 +145,10 @@ class GtkUI(GtkPluginBase):
         self.glade.get_widget("chk_remove_data").set_sensitive(check.get_active())
 
     def _do_new_tracker(self,button):
-        new_row = self.lstore.append(["New Tracker"])
+        new_row = self.lstore.append(["Tracker","New Tracker"])
         #self._view.set_cursor("3", start_editing=True)
         path = self.lstore.get_path(new_row)
-        self._view.set_cursor(path, focus_column=self._view.get_column(0), start_editing=True)
+        self._view.set_cursor(path, focus_column=self._view.get_column(1), start_editing=True)
 
     def _do_delete_tracker(self,button):
         selection = self._view.get_selection()
@@ -163,9 +165,13 @@ class GtkUI(GtkPluginBase):
         c1 = self.glade.get_widget("cbo_remove1")
 
         trackers = []
+        labels = []
 
         for row in self._view.get_model():
-            trackers.append(row[0])
+            if row[0] == "Tracker":
+                trackers.append(row[1])
+            else:
+                labels.append(row[1])
 
         config = {
             "max_seeds": self.glade.get_widget("spn_seeds").get_value_as_int(),
@@ -173,6 +179,7 @@ class GtkUI(GtkPluginBase):
             'count_exempt': self.glade.get_widget('chk_count').get_active(),
             'remove_data': self.glade.get_widget('chk_remove_data').get_active(),
             'trackers': trackers,
+            'labels': labels,
             'min': self.glade.get_widget("spn_min").get_value(),
             'interval': self.glade.get_widget("spn_interval").get_value(),
             'sel_func': self.glade.get_widget("cbo_sel_func").get_active_text(),
@@ -206,7 +213,11 @@ class GtkUI(GtkPluginBase):
         self.lstore.clear()
         trackers = config['trackers']
         for tracker in trackers:
-            self.lstore.append([tracker])
+            self.lstore.append(["Tracker", tracker])
+
+        labels = config['labels']
+        for label in labels:
+            self.lstore.append(["Label", label])
 
         selected = config['filter']
 
@@ -239,15 +250,34 @@ class GtkUI(GtkPluginBase):
 
     def _build_view(self):
 
-        self.lstore = gtk.ListStore(str)
+        self.lstore = gtk.ListStore(str, str)
         view = gtk.TreeView(model=self.lstore)
-        cr = gtk.CellRendererText()
-        cr.set_property("editable", True)
-        col = gtk.TreeViewColumn(_("Name"), cr, text=0)
-        cr.connect("edited", self._text_edited)
-        view.append_column(col)
+
+        # Create field to set the type of exemption
+        liststore_field = gtk.ListStore(str)
+        for item in ["Tracker", "Label"]:
+            liststore_field.append([item])
+        crc = gtk.CellRendererCombo()
+        crc.set_property("editable", True)
+        crc.set_property("model", liststore_field)
+        crc.set_property("text-column", 0)
+        crc.set_property("has-entry", False)
+        crc.connect("edited", self._on_combo_changed)
+        # crc.set_active(0)
+        colc = gtk.TreeViewColumn(_("Type"), crc, text=0)
+        view.append_column(colc)
+
+        # Create text field for label or tracker names
+        crt = gtk.CellRendererText()
+        crt.set_property("editable", True)
+        crt.connect("edited", self._text_edited)
+        colt = gtk.TreeViewColumn(_("Name"), crt, text=1)
+        view.append_column(colt)
 
         return view
 
-    def _text_edited(self, widget, path, text):
+    def _on_combo_changed(self, widget, path, text):
         self.lstore[path][0] = text
+
+    def _text_edited(self, widget, path, text):
+        self.lstore[path][1] = text

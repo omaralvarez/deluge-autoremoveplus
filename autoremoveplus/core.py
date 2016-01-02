@@ -55,6 +55,7 @@ DEFAULT_PREFS = {
     'count_exempt': False,
     'remove_data': False,
     'trackers': [],
+    'labels': [],
     'min': 0.0,
     'interval': 0.5,
     'sel_func': 'and',
@@ -307,7 +308,7 @@ class Core(CorePluginBase):
 
         # remove or pause these torrents
         for i, t in torrents[max_seeds:]:
-            
+
             # check if free disk space below minimum
             if self.check_min_space():
                 break # break the loop, we have enough space
