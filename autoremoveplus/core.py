@@ -186,7 +186,7 @@ class Core(CorePluginBase):
 
         # if hdd space below minimum delete torrents
         if real_hdd_space > min_hdd_space:
-            return True # there is enough space
+            return True  # there is enough space
         else:
             return False
 
@@ -220,9 +220,20 @@ class Core(CorePluginBase):
         count_exempt = self.config['count_exempt']
         remove_data = self.config['remove_data']
         exemp_trackers = self.config['trackers']
+        exemp_labels = self.config['labels']
         min_val = self.config['min']
         min_val2 = self.config['min2']
         remove = self.config['remove']
+
+        labels_enabled = False
+
+        if 'Label' in component.get(
+            "CorePluginManager"
+        ).get_enabled_plugins():
+            labels_enabled = True
+        else:
+            log.debug("WARNING! Label plugin not active")
+            log.debug("No labels will be checked for exemptions!")
 
         # Negative max means unlimited seeds are allowed, so don't do anything
         if max_seeds < 0:
@@ -261,6 +272,7 @@ class Core(CorePluginBase):
             ex_torrent = False
             trackers = t.trackers
 
+            # check if trackers in exempted tracker list
             for tracker, ex_tracker in (
                 (t, ex_t) for t in trackers for ex_t in exemp_trackers
             ):
@@ -268,6 +280,29 @@ class Core(CorePluginBase):
                     log.debug("Found exempted tracker: %s" % (ex_tracker))
                     ex_torrent = True
 
+            # check if labels in exempted label list if Label plugin is enabled
+            if labels_enabled:
+                try:
+                    # get label string
+                    label_str = component.get(
+                        "CorePlugin.Label"
+                    )._status_get_label(i)
+
+                    # if torrent has labels check them
+                    if len(label_str) > 0:
+                        labels = [label_str]
+
+                    for label, ex_label in (
+                        (l, ex_l) for l in labels for ex_l in exemp_labels
+                    ):
+                        if(label.find(ex_label.lower()) != -1):
+                            log.debug("Found exempted label: %s" % (ex_label))
+                            ex_torrent = True
+                except:
+                    log.debug("Cannot obtain torrent label")
+
+            # if torrent tracker or label in exemption list, or torrent ignored
+            # insert in the ignored torrents list
             (ignored_torrents if ignored or ex_torrent else torrents)\
                 .append((i, t))
 
@@ -311,7 +346,7 @@ class Core(CorePluginBase):
 
             # check if free disk space below minimum
             if self.check_min_space():
-                break # break the loop, we have enough space
+                break  # break the loop, we have enough space
 
             log.debug(
                 "AutoRemovePlus: Remove torrent %s, %s"
