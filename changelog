@@ -1,3 +1,10 @@
+Version 0.5
+- Feature: Exclude torrents based on labels.
+- Feature: Only remove torrents if under a certain HDD space threshold.
+- Feature: Threshold for removing torrents based on seed count.
+- Feature: Pause instead of remove torrents.
+
+
 Version 0.4
 - Feature: Customizable removal interval. Times are expected as days.
 - Feature: Multiple removal criteria.

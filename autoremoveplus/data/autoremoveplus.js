@@ -3,7 +3,7 @@ Script: autoremoveplus.js
     The client-side javascript code for the AutoRemove plugin.
 
 Copyright:
-    (C) 2014 Omar Alvarez <osurfer3@hotmail.com>
+    (C) 2014-2016 Omar Alvarez <osurfer3@hotmail.com>
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 3, or (at your option)

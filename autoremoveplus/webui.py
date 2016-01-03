@@ -1,7 +1,7 @@
 #
 # webui.py
 #
-# Copyright (C) 2014 Omar Alvarez <osurfer3@hotmail.com>
+# Copyright (C) 2014-2016 Omar Alvarez <osurfer3@hotmail.com>
 # Copyright (C) 2011 Jamie Lennox <jamielennox@gmail.com>
 #
 # Basic plugin template created by:
@@ -49,4 +49,3 @@ class WebUI(WebPluginBase):
 
     scripts = [get_resource("autoremoveplus.js")]
     debug_scripts = scripts
-    
