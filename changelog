@@ -4,7 +4,6 @@ Version 0.5
 - Feature: Threshold for removing torrents based on seed count.
 - Feature: Pause instead of remove torrents.
 
-
 Version 0.4
 - Feature: Customizable removal interval. Times are expected as days.
 - Feature: Multiple removal criteria.
