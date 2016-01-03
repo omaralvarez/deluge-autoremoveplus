@@ -286,6 +286,17 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
 
             colModel: new Ext.grid.ColumnModel({
                 columns: [{
+                    id: 'type',
+                    header: _('Type'),
+                    dataIndex: 'type',
+                    sortable: true,
+                    hideable: false,
+                    editable: true,
+                    editor: {
+                      xtype: 'combo',
+                      store: ['Tracker','Label']
+                    }
+                },{
                     id: 'name',
                     header: _('Name'),
                     dataIndex: 'name',
@@ -305,18 +316,16 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
 
             store: new Ext.data.ArrayStore({
                 autoDestroy: true,
-                fields: [{name: 'name'}]
+                fields: [
+                  {name: 'type'},
+                  {name: 'name'}
+                ]
             }),
 
             listeners: {
-                //beforeedit: function(e) {
-                 //   return e.record.get('enabled');
-                //},
-
                 afteredit: function(e) {
                     e.record.commit();
                 }
-
             },
 
             setEmptyText: function(text) {
@@ -450,7 +459,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             this.preferences = prefs;
             this.chkExemptCount.setValue(prefs['count_exempt']);
             this.chkRemoveData.setValue(prefs['remove_data']);
-            this.loadTrackers(prefs['trackers']);
+            this.loadExemptions(prefs['trackers'], prefs['labels']);
             this.intervalContainer.getComponent(1).setValue(prefs['interval']);
             this.maxSeedsContainer.getComponent(1).setValue(prefs['max_seeds']);
             this.minHDDSpaceContainer.getComponent(1).setValue(prefs['hdd_space']);
@@ -485,14 +494,21 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
 
     },
 
-    loadTrackers: function(trackers) {
+    loadExemptions: function(trackers, labels) {
         var store = this.tblTrackers.getStore();
 
         var data = [];
+
         var keys = Ext.keys(trackers);
         for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
-            data.push([trackers[key]]);
+            data.push(['Tracker',trackers[key]]);
+        }
+
+        keys = Ext.keys(labels);
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            data.push(['Label',labels[key]]);
         }
 
         this.tblTrackers.loadData(data);
@@ -500,13 +516,18 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
 
     savePrefs: function() {
         var trackerList = [];
+        var labelList = [];
         var store = this.tblTrackers.getStore();
         var apply = false;
 
         for (var i = 0; i < store.getCount(); i++) {
           var record = store.getAt(i);
+          var type = record.get('type');
           var name = record.get('name');
-          trackerList.push(name);
+          if(!type.localeCompare('Tracker'))
+            trackerList.push(name);
+          else
+            labelList.push(name);
         }
 
         var filterVal = this.removeByContainer.getComponent(2).getValue();
@@ -516,6 +537,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
           remove_data: this.chkRemoveData.getValue(),
           count_exempt: this.chkExemptCount.getValue(),
           trackers: trackerList,
+          labels: labelList,
           max_seeds: this.maxSeedsContainer.getComponent(1).getValue(),
           hdd_space: this.minHDDSpaceContainer.getComponent(1).getValue(),
           filter: filterVal,
@@ -540,6 +562,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
         apply |= prefs['remove'] != this.preferences['remove'];
         apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['trackers'],
             this.preferences['trackers']);
+        apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['labels'],
+            this.preferences['labels']);
 
         if (apply) {
           deluge.client.autoremoveplus.set_config(prefs, {
