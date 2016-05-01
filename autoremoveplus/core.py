@@ -71,15 +71,15 @@ def _get_ratio((i, t)):
 
 
 def _date_added((i, t)):
-    return (time.time()-t.time_added)/86400.0
+    return (time.time() - t.time_added) / 86400.0
 
 
 # Add key label also to get_remove_rules():141
 filter_funcs = {
     'func_ratio': _get_ratio,
-    'func_added': lambda (i, t): (time.time()-t.time_added)/86400.0,
+    'func_added': lambda (i, t): (time.time() - t.time_added) / 86400.0,
     'func_seed_time': lambda (i, t):
-        t.get_status(['seeding_time'])['seeding_time']/86400.0,
+        t.get_status(['seeding_time'])['seeding_time'] / 86400.0,
     'func_seeders': lambda (i, t): t.get_status(['total_seeds'])['total_seeds']
 }
 
@@ -176,7 +176,7 @@ class Core(CorePluginBase):
 
     def check_min_space(self):
         min_hdd_space = self.config['hdd_space']
-        real_hdd_space = component.get("Core").get_free_space()/1073741824.0
+        real_hdd_space = component.get("Core").get_free_space() / 1073741824.0
 
         log.debug("Space: %s/%s" % (real_hdd_space, min_hdd_space))
 
@@ -289,8 +289,7 @@ class Core(CorePluginBase):
                     )._status_get_label(i)
 
                     # if torrent has labels check them
-                    if len(label_str) > 0:
-                        labels = [label_str]
+                    labels = [label_str] if len(label_str) > 0 else []
 
                     for label, ex_label in (
                         (l, ex_l) for l in labels for ex_l in exemp_labels
