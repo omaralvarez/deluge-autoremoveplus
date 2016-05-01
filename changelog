@@ -1,3 +1,5 @@
+Version 0.5.1
+- Bugfix: No label error fixed.
 Version 0.5
 - Feature: Exclude torrents based on labels.
 - Feature: Only remove torrents if under a certain HDD space threshold.
