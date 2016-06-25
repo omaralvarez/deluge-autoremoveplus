@@ -64,3 +64,12 @@ Pause torrents instead of removing them:
 > :black_small_square: Remove torrents
 
 The rest of the options are pretty self explanatory
+
+Workarounds
+-----------
+
+If after building the egg file, the plugin does not load in Deluge:
+
+- Delete the AutoRemovePlus-x-py2.x.egg in /deluge/plugins folder.
+- Delete the AutoRemovePlus.conf files.
+- Restart Deluge.
