@@ -44,7 +44,7 @@ from deluge.log import LOG as log
 from deluge.ui.client import client
 from deluge.plugins.pluginbase import GtkPluginBase
 import deluge.component as component
-import deluge.common
+# import deluge.common
 
 from common import get_resource
 
@@ -54,9 +54,18 @@ class GtkUI(GtkPluginBase):
     def enable(self):
         log.debug("Enabling AutoRemovePlus...")
         self.glade = gtk.glade.XML(get_resource("config.glade"))
-        component.get("Preferences").add_page("AutoRemovePlus", self.glade.get_widget("prefs_box"))
-        component.get("PluginManager").register_hook("on_apply_prefs", self.on_apply_prefs)
-        component.get("PluginManager").register_hook("on_show_prefs", self.on_show_prefs)
+        component.get("Preferences").add_page(
+            "AutoRemovePlus",
+            self.glade.get_widget("prefs_box")
+        )
+        component.get("PluginManager").register_hook(
+            "on_apply_prefs",
+            self.on_apply_prefs
+        )
+        component.get("PluginManager").register_hook(
+            "on_show_prefs",
+            self.on_show_prefs
+        )
 
         # Create and fill remove rule list
         self.rules = gtk.ListStore(str, str)
@@ -98,7 +107,15 @@ class GtkUI(GtkPluginBase):
         self._blk_trackers.add(window)
         self._blk_trackers.show_all()
 
-        self.glade.get_widget("chk_remove").connect("toggled", self.on_click_remove)
+        self.glade.get_widget("chk_remove").connect(
+            "toggled",
+            self.on_click_remove
+        )
+
+        self.glade.get_widget("chk_enabled").connect(
+            "toggled",
+            self.on_click_enabled
+        )
 
         def on_menu_show(menu, (menu_item, toggled)):
             def set_ignored(ignored):
@@ -141,8 +158,28 @@ class GtkUI(GtkPluginBase):
         del self.show_sig
         del self.realize_sig
 
-    def on_click_remove(self,check):
-        self.glade.get_widget("chk_remove_data").set_sensitive(check.get_active())
+    def on_click_remove(self, check):
+        checked = check.get_active()
+        self.glade.get_widget("chk_remove_data").set_sensitive(checked)
+
+    def disable_all_widgets(self, checked):
+        self.glade.get_widget("hbox4").set_sensitive(checked)
+        self.glade.get_widget("hbox2").set_sensitive(checked)
+        self.glade.get_widget("hbox6").set_sensitive(checked)
+        self.glade.get_widget("hbox1").set_sensitive(checked)
+        self.glade.get_widget("hbox5").set_sensitive(checked)
+        self.glade.get_widget("vbox2").set_sensitive(checked)
+        self.glade.get_widget("chk_count").set_sensitive(checked)
+        self.glade.get_widget("chk_remove").set_sensitive(checked)
+        if not checked:
+            self.glade.get_widget("chk_remove_data").set_sensitive(checked)
+        else:
+            self.glade.get_widget("chk_remove_data").set_sensitive(
+                self.glade.get_widget("chk_remove").get_active()
+            )
+
+    def on_click_enabled(self, check):
+        self.disable_all_widgets(check.get_active())
 
     def _do_new_tracker(self,button):
         new_row = self.lstore.append(["Tracker","New Tracker"])
@@ -186,7 +223,8 @@ class GtkUI(GtkPluginBase):
             'filter2': c1.get_model()[c1.get_active_iter()][0],
             'min2': self.glade.get_widget("spn_min1").get_value(),
             'hdd_space': self.glade.get_widget("spn_min2").get_value(),
-            'remove': self.glade.get_widget('chk_remove').get_active()
+            'remove': self.glade.get_widget('chk_remove').get_active(),
+            'enabled': self.glade.get_widget('chk_enabled').get_active()
         }
 
         client.autoremoveplus.set_config(config)
@@ -209,6 +247,8 @@ class GtkUI(GtkPluginBase):
         self.glade.get_widget("chk_remove_data").set_active(config['remove_data'])
         self.glade.get_widget("spn_interval").set_value(config["interval"])
         self.glade.get_widget("chk_remove").set_active(config['remove'])
+        self.glade.get_widget("chk_enabled").set_active(config['enabled'])
+        self.disable_all_widgets(config['enabled'])
 
         self.lstore.clear()
         trackers = config['trackers']

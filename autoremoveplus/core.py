@@ -50,7 +50,7 @@ from twisted.internet.task import LoopingCall, deferLater
 import time
 
 DEFAULT_PREFS = {
-    'max_seeds': -1,
+    'max_seeds': 0,
     'filter': 'func_ratio',
     'count_exempt': False,
     'remove_data': False,
@@ -62,7 +62,8 @@ DEFAULT_PREFS = {
     'filter2': 'func_added',
     'min2': 0.0,
     'hdd_space': -1.0,
-    'remove': True
+    'remove': True,
+    'enabled': False
 }
 
 
@@ -87,8 +88,6 @@ sel_funcs = {
     'and': lambda (a, b): a and b,
     'or': lambda (a, b): a or b
 }
-
-live = True
 
 
 class Core(CorePluginBase):
@@ -224,6 +223,7 @@ class Core(CorePluginBase):
         min_val = self.config['min']
         min_val2 = self.config['min2']
         remove = self.config['remove']
+        enabled = self.config['enabled']
 
         labels_enabled = False
 
@@ -357,7 +357,7 @@ class Core(CorePluginBase):
             log.debug(
                 filter_funcs.get(self.config['filter2'], _get_ratio)((i, t))
             )
-            if live:
+            if enabled:
                 # Get result of first condition test
                 filter_1 = filter_funcs.get(
                     self.config['filter'],

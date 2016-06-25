@@ -26,11 +26,25 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
+                      <widget class="GtkCheckButton" id="chk_enabled">
+                        <property name="label" translatable="yes">Enable</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="draw_indicator">True</property>
+                      </widget>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="GtkHBox" id="hbox4">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <widget class="GtkLabel" id="label7">
+                          <widget class="GtkLabel" id="label12">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">Check every: </property>
@@ -67,7 +81,7 @@
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="padding">4</property>
-                        <property name="position">0</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
@@ -95,7 +109,7 @@
                             <property name="secondary_icon_activatable">False</property>
                             <property name="primary_icon_sensitive">True</property>
                             <property name="secondary_icon_sensitive">True</property>
-                            <property name="adjustment">-1 -1 999 1 10 0</property>
+                            <property name="adjustment">0 0 9999 1 10 0</property>
                             <property name="numeric">True</property>
                           </widget>
                           <packing>
@@ -105,24 +119,12 @@
                             <property name="position">1</property>
                           </packing>
                         </child>
-                        <child>
-                          <widget class="GtkLabel" id="label3">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">(-1 for infinite)</property>
-                          </widget>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">2</property>
-                          </packing>
-                        </child>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="padding">4</property>
-                        <property name="position">1</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                     <child>
@@ -181,7 +183,7 @@
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="padding">4</property>
-                        <property name="position">2</property>
+                        <property name="position">3</property>
                       </packing>
                     </child>
                     <child>
@@ -267,7 +269,7 @@
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="padding">4</property>
-                        <property name="position">3</property>
+                        <property name="position">4</property>
                       </packing>
                     </child>
                     <child>
@@ -355,7 +357,7 @@
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="padding">4</property>
-                        <property name="position">4</property>
+                        <property name="position">5</property>
                       </packing>
                     </child>
                     <child>
@@ -436,7 +438,7 @@
                         <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="padding">4</property>
-                        <property name="position">5</property>
+                        <property name="position">6</property>
                       </packing>
                     </child>
                     <child>
@@ -451,7 +453,7 @@
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="padding">4</property>
-                        <property name="position">6</property>
+                        <property name="position">7</property>
                       </packing>
                     </child>
                     <child>
@@ -464,9 +466,9 @@
                         <property name="draw_indicator">True</property>
                       </widget>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">7</property>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">8</property>
                       </packing>
                     </child>
                     <child>
@@ -481,7 +483,7 @@
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="padding">4</property>
-                        <property name="position">8</property>
+                        <property name="position">9</property>
                       </packing>
                     </child>
                   </widget>
