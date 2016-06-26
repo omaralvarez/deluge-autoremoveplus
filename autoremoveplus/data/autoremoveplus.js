@@ -69,10 +69,16 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
         Deluge.plugins.autoremoveplus.ui.PreferencePage.superclass.initComponent.call(
           this);
 
+        this.chkEnabled = this.add({
+          xtype: 'checkbox',
+          margins: '0 0 0 5',
+          boxLabel: _('Enable')
+        });
+
         this.intervalContainer = this.add({
             xtype: 'container',
             layout: 'hbox',
-            margins: '0 5 8 5',
+            margins: '5 5 8 5',
             items: [{
                 xtype: 'label',
                 margins: '5 5 0 0',
@@ -108,14 +114,10 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
                 //margins: '0 0 0 0',
                 name: 'maxseedtorrents',
                 fieldLabel: _('Maximum Torrents'),
-                value: -1,
+                value: 0,
                 maxValue: 9999,
-                minValue: -1,
+                minValue: 0,
                 flex: 0.45
-            }, {
-                xtype: 'label',
-                margins: '5 0 0 5',
-                text: _('(-1 for infinite)')
             }]
         });
 
@@ -382,6 +384,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
         this.trackerButtonsContainer.getComponent(1).setHandler(this.deleteTracker, this);
 
         this.chkRemove.on('check', this.onClickRemove, this);
+        this.chkEnabled.on('check', this.onClickEnabled, this);
 
         deluge.preferences.on('show', this.loadPrefs, this);
         deluge.preferences.buttons[1].on('click', this.savePrefs, this);
@@ -392,7 +395,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
 
     //TODO destroy
     onDestroy: function() {
-        this.un('show', this.onClickRemove, this);
+        this.un('check', this.onClickRemove, this);
+        this.un('check', this.onClickEnabled, this);
         deluge.preferences.un('show', this.loadPrefs, this);
         deluge.preferences.buttons[1].un('click', this.savePrefs, this);
         deluge.preferences.buttons[2].un('click', this.savePrefs, this);
@@ -447,6 +451,50 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
           console.log('onClickRemove');
     },
 
+    enableAllWidgets: function() {
+
+        this.intervalContainer.enable();
+        this.maxSeedsContainer.enable();
+        this.minHDDSpaceContainer.enable();
+        this.removeByContainer.enable();
+        this.removeByContainer2.enable();
+        this.labelExTrackers.enable();
+        this.tblTrackers.enable();
+        this.trackerButtonsContainer.enable();
+        this.chkExemptCount.enable();
+        this.chkRemove.enable();
+        if (this.chkRemove.getValue())
+          this.chkRemoveData.enable();
+        else
+          this.chkRemoveData.disable();
+
+    },
+
+    disableAllWidgets: function() {
+
+        this.intervalContainer.disable();
+        this.maxSeedsContainer.disable();
+        this.minHDDSpaceContainer.disable();
+        this.removeByContainer.disable();
+        this.removeByContainer2.disable();
+        this.labelExTrackers.disable();
+        this.tblTrackers.disable();
+        this.trackerButtonsContainer.disable();
+        this.chkExemptCount.disable();
+        this.chkRemove.disable();
+        this.chkRemoveData.disable();
+
+    },
+
+    onClickEnabled: function(checkbox, checked) {
+        if (checked)
+          this.enableAllWidgets();
+        else
+          this.disableAllWidgets();
+          //console.log(checked);
+          //console.log('onClickRemove');
+    },
+
     loadPrefs: function() {
         if (deluge.preferences.isVisible()) {
           this._loadPrefs1();
@@ -467,6 +515,12 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             this.removeByContainer2.getComponent(4).setValue(prefs['min2']);
             this.removeByContainer2.getComponent(0).setValue(prefs['sel_func']);
             this.chkRemove.setValue(prefs['remove']);
+            var enabled = prefs['enabled'];
+            this.chkEnabled.setValue(enabled);
+            if(enabled)
+              this.enableAllWidgets();
+            else
+              this.disableAllWidgets();
           },
           scope: this
         });
@@ -546,7 +600,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
           min2: this.removeByContainer2.getComponent(4).getValue(),
           sel_func: this.removeByContainer2.getComponent(0).getValue(),
           interval: this.intervalContainer.getComponent(1).getValue(),
-          remove: this.chkRemove.getValue()
+          remove: this.chkRemove.getValue(),
+          enabled: this.chkEnabled.getValue()
         };
 
         apply |= prefs['remove_data'] != this.preferences['remove_data'];
@@ -560,6 +615,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
         apply |= prefs['sel_func'] != this.preferences['sel_func'];
         apply |= prefs['interval'] != this.preferences['interval'];
         apply |= prefs['remove'] != this.preferences['remove'];
+        apply |= prefs['enabled'] != this.preferences['enabled'];
         apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['trackers'],
             this.preferences['trackers']);
         apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['labels'],
