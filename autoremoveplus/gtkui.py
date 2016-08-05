@@ -240,8 +240,17 @@ class GtkUI(GtkPluginBase):
             else:
                 labels.append(row[1])
 
+        tracker_rules = {}
+        label_rules = {}
+
+        for row in self._view.get_model():
+            if row[0] == "Tracker":
+                tracker_rules.setdefault(row[1], []).append([row[2], row[3], row[4]])
+            else:
+                label_rules.setdefault(row[1], []).append([row[2], row[3], row[4]])
+
         config = {
-            "max_seeds": self.glade.get_widget("spn_seeds").get_value_as_int(),
+            'max_seeds': self.glade.get_widget('spn_seeds').get_value_as_int(),
             'filter': c.get_model()[c.get_active_iter()][0],
             'count_exempt': self.glade.get_widget('chk_count').get_active(),
             'remove_data': self.glade.get_widget('chk_remove_data').get_active(),
@@ -254,7 +263,9 @@ class GtkUI(GtkPluginBase):
             'min2': self.glade.get_widget("spn_min1").get_value(),
             'hdd_space': self.glade.get_widget("spn_min2").get_value(),
             'remove': self.glade.get_widget('chk_remove').get_active(),
-            'enabled': self.glade.get_widget('chk_enabled').get_active()
+            'enabled': self.glade.get_widget('chk_enabled').get_active(),
+            'tracker_rules': tracker_rules,
+            'label_rules': label_rules
         }
 
         client.autoremoveplus.set_config(config)
@@ -269,16 +280,27 @@ class GtkUI(GtkPluginBase):
             self.rules.append((k, v))
 
     def cb_get_config(self, config):
-        self.glade.get_widget("spn_seeds").set_value(config["max_seeds"])
-        self.glade.get_widget("spn_min").set_value(config["min"])
-        self.glade.get_widget("spn_min1").set_value(config["min2"])
-        self.glade.get_widget("spn_min2").set_value(config["hdd_space"])
-        self.glade.get_widget("chk_count").set_active(config['count_exempt'])
-        self.glade.get_widget("chk_remove_data").set_active(config['remove_data'])
-        self.glade.get_widget("spn_interval").set_value(config["interval"])
-        self.glade.get_widget("chk_remove").set_active(config['remove'])
-        self.glade.get_widget("chk_enabled").set_active(config['enabled'])
+        self.glade.get_widget('spn_seeds').set_value(config['max_seeds'])
+        self.glade.get_widget('spn_min').set_value(config['min'])
+        self.glade.get_widget('spn_min1').set_value(config['min2'])
+        self.glade.get_widget('spn_min2').set_value(config['hdd_space'])
+        self.glade.get_widget('chk_count').set_active(config['count_exempt'])
+        self.glade.get_widget('chk_remove_data').set_active(config['remove_data'])
+        self.glade.get_widget('spn_interval').set_value(config['interval'])
+        self.glade.get_widget('chk_remove').set_active(config['remove'])
+        self.glade.get_widget('chk_enabled').set_active(config['enabled'])
         self.disable_all_widgets(config['enabled'])
+
+        self.lstore_rules.clear()
+        tracker_rules = config['tracker_rules']
+        for tracker in tracker_rules:
+            for rule in tracker_rules[tracker]:
+                self.lstore_rules.append(['Tracker', tracker, rule[0], rule[1], rule[2]])
+
+        label_rules = config['label_rules']
+        for label in label_rules:
+            for rule in label_rules[label]:
+                self.lstore_rules.append(['Label', label, rule[0], rule[1], rule[2]])
 
         self.lstore.clear()
         trackers = config['trackers']

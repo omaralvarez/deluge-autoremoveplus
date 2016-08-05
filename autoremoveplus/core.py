@@ -63,7 +63,9 @@ DEFAULT_PREFS = {
     'min2': 0.0,
     'hdd_space': -1.0,
     'remove': True,
-    'enabled': False
+    'enabled': False,
+    'tracker_rules': {},
+    'label_rules': {}
 }
 
 
