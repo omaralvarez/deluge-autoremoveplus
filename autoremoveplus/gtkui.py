@@ -244,10 +244,19 @@ class GtkUI(GtkPluginBase):
         label_rules = {}
 
         for row in self._view.get_model():
+            # Look for rule key for config
+            for row_r in list(self.rules):
+                if row_r[1] == row[3]:
+                    func = row_r[0]
+                    break
+
+            rule = [row[2], func, row[4]]
+
+            # Insert rule in correct list tracker/label
             if row[0] == "Tracker":
-                tracker_rules.setdefault(row[1], []).append([row[2], row[3], row[4]])
+                tracker_rules.setdefault(row[1], []).append(rule)
             else:
-                label_rules.setdefault(row[1], []).append([row[2], row[3], row[4]])
+                label_rules.setdefault(row[1], []).append(rule)
 
         config = {
             'max_seeds': self.glade.get_widget('spn_seeds').get_value_as_int(),
@@ -295,12 +304,20 @@ class GtkUI(GtkPluginBase):
         tracker_rules = config['tracker_rules']
         for tracker in tracker_rules:
             for rule in tracker_rules[tracker]:
-                self.lstore_rules.append(['Tracker', tracker, rule[0], rule[1], rule[2]])
+                for row in list(self.rules):
+                    if row[0] == rule[1]:
+                        rule_text = row[1]
+
+                self.lstore_rules.append(['Tracker', tracker, rule[0], rule_text, rule[2]])
 
         label_rules = config['label_rules']
         for label in label_rules:
             for rule in label_rules[label]:
-                self.lstore_rules.append(['Label', label, rule[0], rule[1], rule[2]])
+                for row in list(self.rules):
+                    if row[0] == rule[1]:
+                        rule_text = row[1]
+
+                self.lstore_rules.append(['Label', label, rule[0], rule_text, rule[2]])
 
         self.lstore.clear()
         trackers = config['trackers']

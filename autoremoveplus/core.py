@@ -213,6 +213,35 @@ class Core(CorePluginBase):
         else:
             return True
 
+    def get_torrent_rules(self, id, torrent, tracker_rules, label_rules):
+
+        total_rules = []
+
+        for t in torrent.trackers:
+            for name, rules in tracker_rules.iteritems():
+                if(t['url'].find(name.lower()) != -1):
+                    for rule in rules:
+                        total_rules.append(rule)
+
+        if label_rules:
+            try:
+                # get label string
+                label_str = component.get(
+                    "CorePlugin.Label"
+                )._status_get_label(id)
+
+                # if torrent has labels check them
+                labels = [label_str] if len(label_str) > 0 else []
+
+                for label in labels:
+                    if label in label_rules:
+                        for rule in label_rules[label]:
+                            total_rules.append(rule)
+            except:
+                log.debug("Cannot obtain torrent label")
+
+        return total_rules
+
     # we don't use args or kwargs it just allows callbacks to happen cleanly
     def do_remove(self, *args, **kwargs):
         log.debug("AutoRemovePlus: do_remove")
@@ -226,6 +255,7 @@ class Core(CorePluginBase):
         min_val2 = self.config['min2']
         remove = self.config['remove']
         enabled = self.config['enabled']
+        tracker_rules = self.config['tracker_rules']
 
         labels_enabled = False
 
@@ -233,9 +263,11 @@ class Core(CorePluginBase):
             "CorePluginManager"
         ).get_enabled_plugins():
             labels_enabled = True
+            label_rules = self.config['label_rules']
         else:
             log.debug("WARNING! Label plugin not active")
             log.debug("No labels will be checked for exemptions!")
+            label_rules = []
 
         # Negative max means unlimited seeds are allowed, so don't do anything
         if max_seeds < 0:
@@ -369,11 +401,32 @@ class Core(CorePluginBase):
                 filter_2 = filter_funcs.get(
                     self.config['filter2'], _get_ratio
                 )((i, t)) >= min_val2
-                # If logical function is satisfied remove or pause torrent
-                if sel_funcs.get(self.config['sel_func'])((
-                    filter_1,
-                    filter_2
-                )):
+
+                specific_rules = self.get_torrent_rules(i, t, tracker_rules, label_rules)
+
+                #log.debug(specific_rules)
+
+                #remove_cond = False
+
+                # If there are specific rules, ignore general remove rules
+                if specific_rules:
+                    remove_cond = filter_funcs.get(specific_rules[0][1])((i,t)) \
+                        >= specific_rules[0][2]
+                    for rule in specific_rules[1:]:
+                        check_filter = filter_funcs.get(rule[1])((i,t)) \
+                            >= rule[2]
+                        remove_cond = sel_funcs.get(rule[0])((
+                            check_filter,
+                            remove_cond
+                        ))
+                else:
+                    remove_cond = sel_funcs.get(self.config['sel_func'])((
+                        filter_1,
+                        filter_2
+                    ))
+
+                # If logical functions are satisfied remove or pause torrent
+                if remove_cond:
                     if not remove:
                         self.pause_torrent(t)
                     else:
