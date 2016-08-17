@@ -54,28 +54,41 @@ Deluge.plugins.autoremoveplus.util.arrayEquals = function(a, b) {
 };
 
 
-Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
+Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
 
     title: Deluge.plugins.autoremoveplus.DISPLAY_NAME,
 
-    layout: {
-    type: 'vbox',
-    align: 'stretch'
-    },
-
-    //layout: 'form',
+    activeTab: 0,
 
     initComponent: function() {
         Deluge.plugins.autoremoveplus.ui.PreferencePage.superclass.initComponent.call(
           this);
 
-        this.chkEnabled = this.add({
+        this.genSettingsBox = this.add({
+            title: 'General Settings',
+            xtype: 'panel',
+            layout: {
+              type: 'vbox',
+              align: 'stretch'
+            }
+        });
+
+        this.specSettingsBox = this.add({
+            title: 'Specific Remove Rules',
+            xtype: 'panel',
+            layout: {
+              type: 'vbox',
+              align: 'stretch'
+            }
+        });
+
+        this.chkEnabled = this.genSettingsBox.add({
           xtype: 'checkbox',
           margins: '0 0 0 5',
           boxLabel: _('Enable')
         });
 
-        this.intervalContainer = this.add({
+        this.intervalContainer = this.genSettingsBox.add({
             xtype: 'container',
             layout: 'hbox',
             margins: '5 5 8 5',
@@ -100,7 +113,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             }]
         });
 
-        this.maxSeedsContainer = this.add({
+        this.maxSeedsContainer = this.genSettingsBox.add({
             xtype: 'container',
             layout: 'hbox',
             margins: '0 5 8 5',
@@ -121,7 +134,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             }]
         });
 
-        this.minHDDSpaceContainer = this.add({
+        this.minHDDSpaceContainer = this.genSettingsBox.add({
             xtype: 'container',
             layout: 'hbox',
             margins: '0 5 8 5',
@@ -148,7 +161,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             }]
         });
 
-        this.removeByContainer = this.add({
+        this.removeByContainer = this.genSettingsBox.add({
             xtype: 'container',
             layout: 'hbox',
             margins: '0 5 8 5',
@@ -179,7 +192,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
 	                fields: ['func_id','func_name']
             	}),
             	valueField: 'func_id',
-    			displayField: 'func_name',
+    			    displayField: 'func_name',
                 //value: 0,
                 editable: true,
                 triggerAction: 'all',
@@ -207,7 +220,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             }]
         });
 
-        this.removeByContainer2 = this.add({
+        this.removeByContainer2 = this.genSettingsBox.add({
             xtype: 'container',
             layout: 'hbox',
             margins: '0 5 8 5',
@@ -269,13 +282,13 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             }]
         });
 
-        this.labelExTrackers = this.add({
+        this.labelExTrackers = this.genSettingsBox.add({
           xtype: 'label',
           margins: '5 0 0 5',
           text: _('Exempted Trackers:')
         });
 
-        this.tblTrackers = this.add({
+        this.tblTrackers = this.genSettingsBox.add({
             xtype: 'editorgrid',
             margins: '2 0 0 5',
             flex: 1,
@@ -348,7 +361,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
 
         });
 
-        this.trackerButtonsContainer = this.add({
+        this.trackerButtonsContainer = this.genSettingsBox.add({
             xtype: 'container',
             layout: 'hbox',
             margins: '4 0 0 5',
@@ -362,26 +375,167 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             }]
         });
 
-        this.chkExemptCount = this.add({
+        this.chkExemptCount = this.genSettingsBox.add({
           xtype: 'checkbox',
           margins: '5 0 0 5',
           boxLabel: _('Exempted torrents count toward maximum')
         });
 
-        this.chkRemove = this.add({
+        this.chkRemove = this.genSettingsBox.add({
           xtype: 'checkbox',
           margins: '5 0 0 5',
           boxLabel: _('Remove torrents')
         });
 
-        this.chkRemoveData = this.add({
+        this.chkRemoveData = this.genSettingsBox.add({
           xtype: 'checkbox',
           margins: '5 0 0 5',
           boxLabel: _('Remove torrent data')
         });
 
+        this.tblRules = this.specSettingsBox.add({
+            xtype: 'editorgrid',
+            margins: '2 0 0 5',
+            flex: 1,
+            autoExpandColumn: 'name',
+
+            viewConfig: {
+                emptyText: _('Add a rule...'),
+                deferEmptyText: false
+            },
+
+            colModel: new Ext.grid.ColumnModel({
+                columns: [{
+                    id: 'type',
+                    header: _('Type'),
+                    dataIndex: 'type',
+                    sortable: true,
+                    hideable: false,
+                    editable: true,
+                    editor: {
+                      xtype: 'combo',
+                      store: ['Tracker','Label']
+                    }
+                },{
+                    id: 'name',
+                    header: _('Name'),
+                    dataIndex: 'name',
+                    sortable: true,
+                    hideable: false,
+                    editable: true,
+                    editor: {
+                      xtype: 'textfield'
+                    }
+                },{
+                  id: 'op',
+                  header: _('Operator'),
+                  dataIndex: 'op',
+                  sortable: true,
+                  hideable: false,
+                  editable: true,
+                  editor: {
+                    xtype: 'combo',
+                    store: ['and','or']
+                  }
+                },{
+                  id: 'rule',
+                  header: _('Remove Rule'),
+                  dataIndex: 'rule',
+                  sortable: true,
+                  hideable: false,
+                  editable: true,
+                  editor: {
+                    xtype: 'combo',
+                    store: new Ext.data.ArrayStore({
+                        autoDestroy: true,
+                        idIndex: 0,
+                        fields: ['func_id','func_name']
+                    }),
+                    valueField: 'func_id',
+                    displayField: 'func_name',
+                    //value: 0,
+                    editable: true,
+                    triggerAction: 'all'
+                  }
+                },{
+                  id: 'min',
+                  header: _('Minimum'),
+                  dataIndex: 'min',
+                  sortable: true,
+                  hideable: false,
+                  editable: true,
+                  editor: {
+                    xtype: 'spinnerfield',
+                    value: 0.0,
+                    maxValue: 10000.0,
+                    minValue: 0.0,
+                    allowDecimals: true,
+                    decimalPrecision: 3,
+                    incrementValue: 0.5,
+                    alternateIncrementValue: 1.0
+                  }
+                }]
+            }),
+
+            selModel: new Ext.grid.RowSelectionModel({
+                singleSelect: false,
+                moveEditorOnEnter: false
+            }),
+
+            store: new Ext.data.ArrayStore({
+                autoDestroy: true,
+                fields: [
+                  {name: 'type'},
+                  {name: 'name'},
+                  {name: 'op'},
+                  {name: 'rule'},
+                  {name: 'min'}
+                ]
+            }),
+
+            listeners: {
+                afteredit: function(e) {
+                    e.record.commit();
+                }
+            },
+
+            setEmptyText: function(text) {
+                if (this.viewReady) {
+                  this.getView().emptyText = text;
+                  this.getView().refresh();
+                } else {
+                  Ext.apply(this.viewConfig, {emptyText: text});
+                }
+            },
+
+            loadData: function(data) {
+                this.getStore().loadData(data);
+                if (this.viewReady) {
+                  this.getView().updateHeaders();
+                }
+            }
+
+        });
+
+        this.rulesButtonsContainer = this.specSettingsBox.add({
+            xtype: 'container',
+            layout: 'hbox',
+            margins: '4 0 0 5',
+            items: [{
+                xtype: 'button',
+                text: ' Add Rule ',
+                margins: '0 5 0 0'
+            }, {
+                xtype: 'button',
+                text: ' Delete Rule '
+            }]
+        });
+
         this.trackerButtonsContainer.getComponent(0).setHandler(this.addTracker, this);
         this.trackerButtonsContainer.getComponent(1).setHandler(this.deleteTracker, this);
+
+        this.rulesButtonsContainer.getComponent(0).setHandler(this.addRule, this);
+        this.rulesButtonsContainer.getComponent(1).setHandler(this.deleteRule, this);
 
         this.chkRemove.on('check', this.onClickRemove, this);
         this.chkEnabled.on('check', this.onClickEnabled, this);
@@ -437,6 +591,28 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
         var store = this.tblTrackers.getStore();
 
         this.tblTrackers.stopEditing();
+        for (var i = 0; i < selections.length; i++)
+            store.remove(selections[i]);
+        store.commitChanges();
+    },
+
+    addRule: function() {
+        // access the Record constructor through the grid's store
+        var store = this.tblRules.getStore();
+        var Rule = store.recordType;
+        var t = new Rule({
+            name: ''
+        });
+        this.tblRules.stopEditing();
+        store.insert(0, t);
+        this.tblRules.startEditing(0, 0);
+    },
+
+    deleteRule: function() {
+        var selections = this.tblRules.getSelectionModel().getSelections();
+        var store = this.tblRules.getStore();
+
+        this.tblRules.stopEditing();
         for (var i = 0; i < selections.length; i++)
             store.remove(selections[i]);
         store.commitChanges();
@@ -508,6 +684,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
             this.chkExemptCount.setValue(prefs['count_exempt']);
             this.chkRemoveData.setValue(prefs['remove_data']);
             this.loadExemptions(prefs['trackers'], prefs['labels']);
+            this.loadRules(prefs['tracker_rules'], prefs['label_rules']);
             this.intervalContainer.getComponent(1).setValue(prefs['interval']);
             this.maxSeedsContainer.getComponent(1).setValue(prefs['max_seeds']);
             this.minHDDSpaceContainer.getComponent(1).setValue(prefs['hdd_space']);
@@ -537,7 +714,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
 	            var key = keys[i];
 	            data.push([key,rules[key]]);
 	            //console.log([key,rules[key]]);
-	        }
+	          }
             removeByStore.loadData(data);
             removeBy.setValue(this.preferences['filter']);
             removeByStore2.loadData(data);
@@ -566,6 +743,46 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.Panel, {
         }
 
         this.tblTrackers.loadData(data);
+    },
+
+    loadRules: function(tracker_rules, label_rules) {
+        var store = this.tblRules.getStore();
+
+        var data = [];
+
+        var names = Ext.keys(tracker_rules);
+        for (var i = 0; i < names.length; i++) {
+            var name = names[i];
+            var keys = Ext.keys(tracker_rules[name]);
+            for (var j = 0; j < keys.length; j++) {
+              var key = keys[j];
+              data.push([
+                'Tracker',
+                name,
+                tracker_rules[name][key][0],
+                tracker_rules[name][key][1],
+                tracker_rules[name][key][2]
+              ]);
+            }
+        }
+
+        var names = Ext.keys(label_rules);
+        for (var i = 0; i < names.length; i++) {
+            var name = names[i];
+            var keys = Ext.keys(label_rules[name]);
+            for (var j = 0; j < keys.length; j++) {
+              var key = keys[j];
+              data.push([
+                'Label',
+                key,
+                label_rules[name][key][0],
+                label_rules[name][key][1],
+                label_rules[name][key][2]
+              ]);
+            }
+        }
+
+        this.tblRules.loadData(data);
     },
 
     savePrefs: function() {
