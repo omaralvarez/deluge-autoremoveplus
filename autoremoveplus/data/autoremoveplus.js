@@ -43,6 +43,13 @@ if (typeof(console) === 'undefined') {
 Deluge.plugins.autoremoveplus.PLUGIN_NAME = 'AutoRemovePlus';
 Deluge.plugins.autoremoveplus.MODULE_NAME = 'autoremoveplus';
 Deluge.plugins.autoremoveplus.DISPLAY_NAME = _('AutoRemovePlus');
+Deluge.plugins.autoremoveplus.CHECK_PRECISION = _('AutoRemovePlus');
+
+Deluge.plugins.autoremoveplus.util.isNumber = function(obj) {
+
+  return !isNaN(parseFloat(obj))
+
+};
 
 Deluge.plugins.autoremoveplus.util.setdefault = function(obj, prop, deflt) {
 
@@ -61,13 +68,52 @@ Deluge.plugins.autoremoveplus.util.arrayEquals = function(a, b) {
       if (a[i] instanceof Array && b[i] instanceof Array)
         if (!Deluge.plugins.autoremoveplus.util.arrayEquals(a[i], b[i]))
           return false;
-
-      if (a[i] !== b[i])
-        return false;
+      else if(Deluge.plugins.autoremoveplus.util.isNumber(a[i])
+        && Deluge.plugins.autoremoveplus.util.isNumber(b[i]))
+          if (a[i].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION)
+            !== b[i].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION))
+            return  false;
+        else if (a[i] !== b[i])
+          return false;
 
     }
 
     return true;
+
+};
+
+Deluge.plugins.autoremoveplus.util.dictEquals = function(a, b) {
+
+  var keysA = Ext.keys(a);
+  var keysB = Ext.keys(b);
+
+  if (keysA.length != keysB.length)
+      return false;
+
+  for (var i = 0; i < keysB.length; i++) {
+
+    var key = keysA[i];
+
+    if (key in b) {
+      if (a[key] instanceof Array && b[key] instanceof Array)
+        if (!Deluge.plugins.autoremoveplus.util.arrayEquals(a[key], b[key])) {
+          return false;
+        } else {
+          if(Deluge.plugins.autoremoveplus.util.isNumber(a[key])
+            && Deluge.plugins.autoremoveplus.util.isNumber(b[key]))
+              if (a[key].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION)
+                !== b[key].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION))
+                return false;
+            else if (a[key] !== b[key])
+                return false;
+        }
+    } else {
+      return false;
+    }
+
+  }
+
+  return true;
 
 };
 
@@ -124,7 +170,6 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
               triggerAction: 'all',
               listeners: {
                   blur: function(combo) {
-                    console.log('Clear filter');
                     combo.store.clearFilter();
                   }
               }
@@ -910,18 +955,23 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
         apply |= prefs['hdd_space'] != this.preferences['hdd_space'];
         apply |= prefs['filter'] != this.preferences['filter'];
         apply |= prefs['filter2'] != this.preferences['filter2'];
-        apply |= prefs['min'] != this.preferences['min'];
-        apply |= prefs['min2'] != this.preferences['min2'];
+        apply |= prefs['min'].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION)
+          != this.preferences['min'].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION);
+        apply |= prefs['min2'].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION)
+          != this.preferences['min2'].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION);
         apply |= prefs['sel_func'] != this.preferences['sel_func'];
-        apply |= prefs['interval'] != this.preferences['interval'];
+        apply |= prefs['interval'].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION)
+          != this.preferences['interval'].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION);
         apply |= prefs['remove'] != this.preferences['remove'];
         apply |= prefs['enabled'] != this.preferences['enabled'];
         apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['trackers'],
             this.preferences['trackers']);
         apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['labels'],
             this.preferences['labels']);
-        /*apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['track'],
-            this.preferences['trackers']);*/
+        apply |= !Deluge.plugins.autoremoveplus.util.dictEquals(prefs['tracker_rules'],
+            this.preferences['tracker_rules']);
+        apply |= !Deluge.plugins.autoremoveplus.util.dictEquals(prefs['label_rules'],
+            this.preferences['label_rules']);
 
         if (apply) {
           deluge.client.autoremoveplus.set_config(prefs, {
