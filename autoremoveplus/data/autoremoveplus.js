@@ -44,13 +44,31 @@ Deluge.plugins.autoremoveplus.PLUGIN_NAME = 'AutoRemovePlus';
 Deluge.plugins.autoremoveplus.MODULE_NAME = 'autoremoveplus';
 Deluge.plugins.autoremoveplus.DISPLAY_NAME = _('AutoRemovePlus');
 
+Deluge.plugins.autoremoveplus.util.setdefault = function(obj, prop, deflt) {
+
+  return obj.hasOwnProperty(prop) ? obj[prop] : (obj[prop] = deflt);
+
+};
+
 Deluge.plugins.autoremoveplus.util.arrayEquals = function(a, b) {
+
     if (a.length != b.length)
         return false;
-    for (var i = 0; i < b.length; i++)
-        if (a[i] !== b[i])
-            return false;
+
+    for (var i = 0; i < b.length; i++) {
+
+      // recurse into the nested arrays
+      if (a[i] instanceof Array && b[i] instanceof Array)
+        if (!Deluge.plugins.autoremoveplus.util.arrayEquals(a[i], b[i]))
+          return false;
+
+      if (a[i] !== b[i])
+        return false;
+
+    }
+
     return true;
+
 };
 
 Deluge.plugins.autoremoveplus.util.dictToArray = function(dict) {
@@ -806,7 +824,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
               var key = keys[j];
               data.push([
                 'Label',
-                key,
+                name,
                 label_rules[name][key][0],
                 label_rules[name][key][1],
                 label_rules[name][key][2]
@@ -833,6 +851,27 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
             labelList.push(name);
         }
 
+        var trackerRules = {};
+        var labelRules = {};
+        store = this.tblRules.getStore();
+
+        for (var i = 0; i < store.getCount(); i++) {
+          var record = store.getAt(i);
+          var type = record.get('type');
+          var name = record.get('name');
+          var op = record.get('op');
+          var rule = record.get('rule');
+          var min = record.get('min');
+          if(!type.localeCompare('Tracker'))
+            Deluge.plugins.autoremoveplus.util
+              .setdefault(trackerRules, name, [])
+              .push([op, rule, min]);
+          else
+            Deluge.plugins.autoremoveplus.util
+              .setdefault(labelRules, name, [])
+              .push([op, rule, min]);
+        }
+
         var filterVal = this.removeByContainer.getComponent(2).getValue();
         var filterVal2 = this.removeByContainer2.getComponent(2).getValue();
 
@@ -850,7 +889,9 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
           sel_func: this.removeByContainer2.getComponent(0).getValue(),
           interval: this.intervalContainer.getComponent(1).getValue(),
           remove: this.chkRemove.getValue(),
-          enabled: this.chkEnabled.getValue()
+          enabled: this.chkEnabled.getValue(),
+          tracker_rules: trackerRules,
+          label_rules: labelRules
         };
 
         apply |= prefs['remove_data'] != this.preferences['remove_data'];
@@ -869,6 +910,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
             this.preferences['trackers']);
         apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['labels'],
             this.preferences['labels']);
+        apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['track'],
+            this.preferences['trackers']);
 
         if (apply) {
           deluge.client.autoremoveplus.set_config(prefs, {
