@@ -106,14 +106,14 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
         deluge.client.autoremoveplus.get_remove_rules({
           success: function(rules) {
 
-            var rule_data = Deluge.plugins.autoremoveplus.util.dictToArray(rules);
+            this.rule_data = Deluge.plugins.autoremoveplus.util.dictToArray(rules);
 
             this.combo = new Ext.form.ComboBox({
               store: new Ext.data.ArrayStore({
                   autoDestroy: true,
                   idIndex: 0,
                   fields: ['func_id','func_name'],
-                  data: rule_data
+                  data: this.rule_data
               }),
               mode: 'local',
               //store: this.rule_names,
@@ -121,7 +121,13 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
               displayField: 'func_name',
               //value: 0,
               editable: true,
-              triggerAction: 'all'
+              triggerAction: 'all',
+              listeners: {
+                  blur: function(combo) {
+                    console.log('Clear filter');
+                    combo.store.clearFilter();
+                  }
+              }
             });
 
             this.tblRules = this.specSettingsBox.add({
@@ -230,9 +236,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
 
                 loadData: function(data) {
                     this.getStore().loadData(data);
-                    if (this.viewReady) {
+                    if (this.viewReady)
                       this.getView().updateHeaders();
-                    }
                 }
 
             });
@@ -833,6 +838,11 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
         }
 
         this.tblRules.loadData(data);
+        //this.tblRules.loadData(data);
+
+        /*this.tblRules.doLayout();
+        this.tblRules.render();*/
+
     },
 
     savePrefs: function() {
@@ -910,8 +920,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
             this.preferences['trackers']);
         apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['labels'],
             this.preferences['labels']);
-        apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['track'],
-            this.preferences['trackers']);
+        /*apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['track'],
+            this.preferences['trackers']);*/
 
         if (apply) {
           deluge.client.autoremoveplus.set_config(prefs, {
