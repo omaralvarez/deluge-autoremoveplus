@@ -59,7 +59,7 @@ Remove torrents that have a ratio over 2.0 or have been seeding for at least 4 d
 
 Remove torrents only according to first criteria:
 
-> :black_small_square: second Remove by: criteria
+> :black_small_square: Second Remove by: criteria
 
 Pause torrents instead of removing them:
 
