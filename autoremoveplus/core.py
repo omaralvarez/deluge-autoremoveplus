@@ -423,16 +423,16 @@ class Core(CorePluginBase):
                             check_filter,
                             remove_cond
                         ))
-                else if rule_1_chk and rule_2_chk:
+                elif rule_1_chk and rule_2_chk:
                     # If both rules active use custom logical function
                     remove_cond = sel_funcs.get(self.config['sel_func'])((
                         filter_1,
                         filter_2
                     ))
-                else if rule_1_chk and not rule_2_chk:
+                elif rule_1_chk and not rule_2_chk:
                     # Evaluate only first rule, since the other is not active
                     remove_cond = filter_1
-                else if not rule_1_chk and rule_2_chk:
+                elif not rule_1_chk and rule_2_chk:
                     # Evaluate only second rule, since the other is not active
                     remove_cond = filter_2
 

@@ -133,6 +133,16 @@ class GtkUI(GtkPluginBase):
             self.on_click_enabled
         )
 
+        self.glade.get_widget("chk_rule_1").connect(
+            "toggled",
+            self.on_click_chk_rule_1
+        )
+
+        self.glade.get_widget("chk_rule_2").connect(
+            "toggled",
+            self.on_click_chk_rule_2
+        )
+
         def on_menu_show(menu, (menu_item, toggled)):
             def set_ignored(ignored):
                 # set_active will raise the 'toggled'/'activated' signals
@@ -196,6 +206,15 @@ class GtkUI(GtkPluginBase):
 
     def on_click_enabled(self, check):
         self.disable_all_widgets(check.get_active())
+
+    def disable_rule(self, checked, rule):
+        self.glade.get_widget("hb_rule_%i" % rule).set_sensitive(checked)
+
+    def on_click_chk_rule_1(self, check):
+        self.disable_rule(check.get_active(), 1)
+
+    def on_click_chk_rule_2(self, check):
+        self.disable_rule(check.get_active(), 2)
 
     def _do_new_rule(self,button):
         new_row = self.lstore_rules.append(["Tracker", "New Tracker", "and", "Ratio", 0.0])
@@ -274,7 +293,9 @@ class GtkUI(GtkPluginBase):
             'remove': self.glade.get_widget('chk_remove').get_active(),
             'enabled': self.glade.get_widget('chk_enabled').get_active(),
             'tracker_rules': tracker_rules,
-            'label_rules': label_rules
+            'label_rules': label_rules,
+            'rule_1_enabled': self.glade.get_widget('chk_rule_1').get_active(),
+            'rule_2_enabled': self.glade.get_widget('chk_rule_2').get_active()
         }
 
         client.autoremoveplus.set_config(config)
@@ -298,7 +319,12 @@ class GtkUI(GtkPluginBase):
         self.glade.get_widget('spn_interval').set_value(config['interval'])
         self.glade.get_widget('chk_remove').set_active(config['remove'])
         self.glade.get_widget('chk_enabled').set_active(config['enabled'])
+        self.glade.get_widget('chk_rule_1').set_active(config['rule_1_enabled'])
+        self.glade.get_widget('chk_rule_2').set_active(config['rule_2_enabled'])
         self.disable_all_widgets(config['enabled'])
+        self.disable_rule(config['rule_1_enabled'], 1)
+        self.disable_rule(config['rule_2_enabled'], 2)
+
 
         self.lstore_rules.clear()
         tracker_rules = config['tracker_rules']
