@@ -11,6 +11,8 @@ Features
 --------
 - Select how many torrents are allowed at the same time.
 - Choose to remove or pause them based on multiple criteria age, seeders, seed time or ratio.
+- Set specific removal rules depending on tracker or label.
+- Remove only torrents from specific trackers or labels.
 - Only remove torrents if under a certain HDD space threshold.
 - Select if torrents have to fulfill both or either criteria.
 - Delete torrents in order (e.g. delete torrents with highest ratio first).
@@ -57,7 +59,7 @@ Remove torrents that have a ratio over 2.0 or have been seeding for at least 4 d
 
 Remove torrents only according to first criteria:
 
-> Remove by: Ratio, Min: 2.0, and, Remove by: Seed Time, Min: 0 (second condition needs to be always true with and)
+> :black_small_square: Second Remove by: criteria
 
 Pause torrents instead of removing them:
 
@@ -65,11 +67,22 @@ Pause torrents instead of removing them:
 
 The rest of the options are pretty self explanatory
 
+Building
+--------
+
+Run:
+
+```
+python setup.py bdist_egg
+```
+
+The resulting `AutoRemovePlus-x-py2.x.egg` file can be found in the `/dist` directory.
+
 Workarounds
 -----------
 
 If after building the egg file, the plugin does not load in Deluge:
 
-- Delete the AutoRemovePlus-x-py2.x.egg in /deluge/plugins folder.
-- Delete the AutoRemovePlus.conf files.
+- Delete the `AutoRemovePlus-x-py2.x.egg` in `/deluge/plugins` directory.
+- Delete the `AutoRemovePlus.conf` files.
 - Restart Deluge.
