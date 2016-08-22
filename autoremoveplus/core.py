@@ -375,7 +375,7 @@ class Core(CorePluginBase):
         changed = False
 
         # remove or pause these torrents
-        for i, t in torrents[max_seeds:]:
+        for i, t in reversed(torrents[max_seeds:]):
 
             # check if free disk space below minimum
             if self.check_min_space():
