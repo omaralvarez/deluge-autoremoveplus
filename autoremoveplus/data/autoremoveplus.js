@@ -405,10 +405,26 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
             }]
         });
 
-        this.removeByContainer = this.genSettingsBox.add({
+        this.rule1Container = this.genSettingsBox.add({
+          xtype: 'container',
+          layout: {
+            type: 'hbox',
+            align: 'middle'
+          },
+          margins: '0 5 8 5',
+          items: [{
+            xtype: 'checkbox',
+            //margins: '0 2 0 0',
+            flex: 0.05
+          }],
+          autoHeight: true
+        });
+
+        this.removeByContainer = this.rule1Container.add({
             xtype: 'container',
             layout: 'hbox',
-            margins: '0 5 8 5',
+            margins: '5 0 0 0',
+            flex: 0.95,
             items: [{
                 xtype: 'combo',
                 margins: '0 8 0 0',
@@ -421,7 +437,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
                 triggerAction: 'all',
                // autoWidth: true,
                 //boxMaxWidth: 20,
-                flex: 0.22
+                flex: 0.24
             },{
                 xtype: 'label',
                 margins: '5 5 0 0',
@@ -442,7 +458,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
                 triggerAction: 'all',
                // autoWidth: true,
                 //boxMaxWidth: 20,
-                flex: 0.45
+                flex: 0.43
             },{
                 xtype: 'label',
                 margins: '5 5 0 0',
@@ -464,10 +480,26 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
             }]
         });
 
-        this.removeByContainer2 = this.genSettingsBox.add({
+        this.rule2Container = this.genSettingsBox.add({
+          xtype: 'container',
+          layout: {
+            type: 'hbox',
+            align: 'middle'
+          },
+          margins: '0 5 8 5',
+          items: [{
+            xtype: 'checkbox',
+            //margins: '0 2 0 0',
+            flex: 0.05
+          }],
+          autoHeight: true
+        });
+
+        this.removeByContainer2 = this.rule2Container.add({
             xtype: 'container',
             layout: 'hbox',
-            margins: '0 5 8 5',
+            margins: '5 0 0 0',
+            flex: 0.95,
             items: [{
                 xtype: 'combo',
                 margins: '0 8 0 0',
@@ -483,7 +515,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
                 triggerAction: 'all',
                // autoWidth: true,
                 //boxMaxWidth: 20,
-                flex: 0.22
+                flex: 0.24
             },{
                 xtype: 'label',
                 margins: '5 5 0 0',
@@ -504,7 +536,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
                 triggerAction: 'all',
                // autoWidth: true,
                 //boxMaxWidth: 20,
-                flex: 0.45
+                flex: 0.43
             },{
                 xtype: 'label',
                 margins: '5 5 0 0',
@@ -642,6 +674,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
 
         this.chkRemove.on('check', this.onClickRemove, this);
         this.chkEnabled.on('check', this.onClickEnabled, this);
+        this.rule1Container.getComponent(0).on('check', this.onClickChkRule1, this);
+        this.rule2Container.getComponent(0).on('check', this.onClickChkRule2, this);
 
         deluge.preferences.on('show', this.loadPrefs, this);
         deluge.preferences.buttons[1].on('click', this.savePrefs, this);
@@ -654,6 +688,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
     onDestroy: function() {
         this.un('check', this.onClickRemove, this);
         this.un('check', this.onClickEnabled, this);
+        this.rule1Container.getComponent(0).un('check', this.onClickChkRule1, this);
+        this.rule2Container.getComponent(0).un('check', this.onClickChkRule2, this);
         deluge.preferences.un('show', this.loadPrefs, this);
         deluge.preferences.buttons[1].un('click', this.savePrefs, this);
         deluge.preferences.buttons[2].un('click', this.savePrefs, this);
@@ -735,8 +771,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
         this.intervalContainer.enable();
         this.maxSeedsContainer.enable();
         this.minHDDSpaceContainer.enable();
-        this.removeByContainer.enable();
-        this.removeByContainer2.enable();
+        this.rule1Container.enable();
+        this.rule2Container.enable();
         this.labelExTrackers.enable();
         this.tblTrackers.enable();
         this.trackerButtonsContainer.enable();
@@ -754,8 +790,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
         this.intervalContainer.disable();
         this.maxSeedsContainer.disable();
         this.minHDDSpaceContainer.disable();
-        this.removeByContainer.disable();
-        this.removeByContainer2.disable();
+        this.rule1Container.disable();
+        this.rule2Container.disable();
         this.labelExTrackers.disable();
         this.tblTrackers.disable();
         this.trackerButtonsContainer.disable();
@@ -772,6 +808,20 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
           this.disableAllWidgets();
           //console.log(checked);
           //console.log('onClickRemove');
+    },
+
+    onClickChkRule1: function(checkbox, checked) {
+        if (checked)
+          this.removeByContainer.enable();
+        else
+          this.removeByContainer.disable();
+    },
+
+    onClickChkRule2: function(checkbox, checked) {
+        if (checked)
+          this.removeByContainer2.enable();
+        else
+          this.removeByContainer2.disable();
     },
 
     loadPrefs: function() {
@@ -801,6 +851,18 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
               this.enableAllWidgets();
             else
               this.disableAllWidgets();
+            var rule_1_enabled = prefs['rule_1_enabled'];
+            this.rule1Container.getComponent(0).setValue(rule_1_enabled);
+            if(rule_1_enabled)
+              this.removeByContainer.enable();
+            else
+              this.removeByContainer.disable();
+            var rule_2_enabled = prefs['rule_2_enabled'];
+            this.rule2Container.getComponent(0).setValue(rule_2_enabled);
+            if(rule_2_enabled)
+              this.removeByContainer2.enable();
+            else
+              this.removeByContainer2.disable();
 
           },
           scope: this
@@ -946,7 +1008,9 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
           remove: this.chkRemove.getValue(),
           enabled: this.chkEnabled.getValue(),
           tracker_rules: trackerRules,
-          label_rules: labelRules
+          label_rules: labelRules,
+          rule_1_enabled: this.rule1Container.getComponent(0).getValue(),
+          rule_2_enabled: this.rule2Container.getComponent(0).getValue()
         };
 
         apply |= prefs['remove_data'] != this.preferences['remove_data'];
@@ -964,6 +1028,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
           != this.preferences['interval'].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION);
         apply |= prefs['remove'] != this.preferences['remove'];
         apply |= prefs['enabled'] != this.preferences['enabled'];
+        apply |= prefs['rule_1_enabled'] != this.preferences['rule_1_enabled'];
+        apply |= prefs['rule_2_enabled'] != this.preferences['rule_2_enabled'];
         apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['trackers'],
             this.preferences['trackers']);
         apply |= !Deluge.plugins.autoremoveplus.util.arrayEquals(prefs['labels'],

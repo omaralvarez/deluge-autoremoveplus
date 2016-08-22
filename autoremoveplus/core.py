@@ -410,7 +410,7 @@ class Core(CorePluginBase):
 
                 #log.debug(specific_rules)
 
-                #remove_cond = False
+                remove_cond = False
 
                 # If there are specific rules, ignore general remove rules
                 if specific_rules:
