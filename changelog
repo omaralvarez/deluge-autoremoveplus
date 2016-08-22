@@ -1,5 +1,13 @@
+Version 0.6
+- Feature: Specific settings for trackers and labels.
+- Feature: Remove only torrents from specific trackers or labels.
+- Feature: Usability improvements.
+- Bugfix: Correctly check in WebUI if saving preferences is necessary.
+- Bugfix: Removal of torrents in order even when they are going to be deleted.
+
 Version 0.5.1
 - Bugfix: No label error fixed.
+
 Version 0.5
 - Feature: Exclude torrents based on labels.
 - Feature: Only remove torrents if under a certain HDD space threshold.
