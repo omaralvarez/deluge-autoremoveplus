@@ -408,7 +408,8 @@ class Core(CorePluginBase):
 
                 specific_rules = self.get_torrent_rules(i, t, tracker_rules, label_rules)
 
-                #log.debug(specific_rules)
+                # Sort rules according to logical operators, AND is evaluated first
+                specific_rules.sort(key=lambda rule: rule[0])
 
                 remove_cond = False
 
