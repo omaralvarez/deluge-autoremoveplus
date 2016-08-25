@@ -450,7 +450,7 @@
                             <property name="can_focus">False</property>
                             <child>
                               <widget class="GtkButton" id="new_tracker">
-                                <property name="label" translatable="yes">  Add Tracker  </property>
+                                <property name="label" translatable="yes">  Add Exemption  </property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
@@ -463,7 +463,7 @@
                             </child>
                             <child>
                               <widget class="GtkButton" id="delete_tracker">
-                                <property name="label" translatable="yes">  Delete Tracker  </property>
+                                <property name="label" translatable="yes">  Delete Exemption  </property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>

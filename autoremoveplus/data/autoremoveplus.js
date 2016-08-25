@@ -402,7 +402,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
         this.labelExTrackers = this.genSettingsBox.add({
           xtype: 'label',
           margins: '5 0 0 5',
-          text: _('Exempted Trackers:')
+          text: _('Exemption Rules:')
         });
 
         this.tblTrackers = this.genSettingsBox.add({
@@ -484,11 +484,11 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
             margins: '4 0 0 5',
             items: [{
                 xtype: 'button',
-                text: ' Add Tracker ',
+                text: ' Add Exemption ',
                 margins: '0 5 0 0'
             }, {
                 xtype: 'button',
-                text: ' Delete Tracker '
+                text: ' Delete Exemption '
             }]
         });
 
