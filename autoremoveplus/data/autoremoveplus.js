@@ -43,7 +43,7 @@ if (typeof(console) === 'undefined') {
 Deluge.plugins.autoremoveplus.PLUGIN_NAME = 'AutoRemovePlus';
 Deluge.plugins.autoremoveplus.MODULE_NAME = 'autoremoveplus';
 Deluge.plugins.autoremoveplus.DISPLAY_NAME = _('AutoRemovePlus');
-Deluge.plugins.autoremoveplus.CHECK_PRECISION = _('AutoRemovePlus');
+Deluge.plugins.autoremoveplus.CHECK_PRECISION = 4;
 
 Deluge.plugins.autoremoveplus.util.isNumber = function(obj) {
 
@@ -510,6 +510,156 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
           boxLabel: _('Remove torrent data')
         });
 
+        this.combo = new Ext.form.ComboBox({
+          store: new Ext.data.ArrayStore({
+              autoDestroy: true,
+              idIndex: 0,
+              fields: ['func_id','func_name']
+              //data: this.rule_data
+          }),
+          mode: 'local',
+          //store: this.rule_names,
+          valueField: 'func_id',
+          displayField: 'func_name',
+          //value: 0,
+          editable: true,
+          triggerAction: 'all',
+          listeners: {
+              blur: function(combo) {
+                combo.store.clearFilter();
+              }
+          }
+        });
+
+        this.tblRules = this.specSettingsBox.add({
+            xtype: 'editorgrid',
+            margins: '2 0 0 5',
+            flex: 1,
+            autoExpandColumn: 'name',
+
+            viewConfig: {
+                emptyText: _('Add a rule...'),
+                deferEmptyText: false
+            },
+
+            colModel: new Ext.grid.ColumnModel({
+                columns: [{
+                    id: 'type',
+                    header: _('Type'),
+                    dataIndex: 'type',
+                    sortable: true,
+                    hideable: false,
+                    editable: true,
+                    editor: {
+                      xtype: 'combo',
+                      store: ['Tracker','Label']
+                    }
+                },{
+                    id: 'name',
+                    header: _('Name'),
+                    dataIndex: 'name',
+                    sortable: true,
+                    hideable: false,
+                    editable: true,
+                    editor: {
+                      xtype: 'textfield'
+                    }
+                },{
+                  id: 'op',
+                  header: _('Operator'),
+                  dataIndex: 'op',
+                  sortable: true,
+                  hideable: false,
+                  editable: true,
+                  editor: {
+                    xtype: 'combo',
+                    store: ['and','or']
+                  }
+                },{
+                  id: 'rule',
+                  header: _('Remove Rule'),
+                  dataIndex: 'rule',
+                  sortable: true,
+                  hideable: false,
+                  editable: true,
+                  editor: this.combo,
+                  renderer: Ext.util.Format.comboRenderer(this.combo)
+                },{
+                  id: 'min',
+                  header: _('Minimum'),
+                  dataIndex: 'min',
+                  sortable: true,
+                  hideable: false,
+                  editable: true,
+                  editor: {
+                    xtype: 'spinnerfield',
+                    value: 0.0,
+                    maxValue: 10000.0,
+                    minValue: 0.0,
+                    allowDecimals: true,
+                    decimalPrecision: 3,
+                    incrementValue: 0.5,
+                    alternateIncrementValue: 1.0
+                  }
+                }]
+            }),
+
+            selModel: new Ext.grid.RowSelectionModel({
+                singleSelect: false,
+                moveEditorOnEnter: false
+            }),
+
+            store: new Ext.data.ArrayStore({
+                autoDestroy: true,
+                fields: [
+                  {name: 'type'},
+                  {name: 'name'},
+                  {name: 'op'},
+                  {name: 'rule'},
+                  {name: 'min'}
+                ]
+            }),
+
+            listeners: {
+                afteredit: function(e) {
+                    e.record.commit();
+                }
+            },
+
+            setEmptyText: function(text) {
+                if (this.viewReady) {
+                  this.getView().emptyText = text;
+                  this.getView().refresh();
+                } else {
+                  Ext.apply(this.viewConfig, {emptyText: text});
+                }
+            },
+
+            loadData: function(data) {
+                this.getStore().loadData(data);
+                if (this.viewReady)
+                  this.getView().updateHeaders();
+            }
+
+        });
+
+        this.rulesButtonsContainer = this.specSettingsBox.add({
+            xtype: 'container',
+            layout: 'hbox',
+            margins: '4 0 0 5',
+            items: [{
+                xtype: 'button',
+                text: ' Add Rule ',
+                margins: '0 5 0 0'
+            }, {
+                xtype: 'button',
+                text: ' Delete Rule '
+            }]
+        });
+
+        this.rulesButtonsContainer.getComponent(0).setHandler(this.addRule, this);
+        this.rulesButtonsContainer.getComponent(1).setHandler(this.deleteRule, this);
+
         this.trackerButtonsContainer.getComponent(0).setHandler(this.addTracker, this);
         this.trackerButtonsContainer.getComponent(1).setHandler(this.deleteTracker, this);
 
@@ -524,164 +674,16 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
 
         this.waitForClient(10);
 
-        deluge.client.autoremoveplus.get_remove_rules({
+        /*deluge.client.autoremoveplus.get_remove_rules({
           success: function(rules) {
 
             this.rule_data = Deluge.plugins.autoremoveplus.util.dictToArray(rules);
 
-            this.combo = new Ext.form.ComboBox({
-              store: new Ext.data.ArrayStore({
-                  autoDestroy: true,
-                  idIndex: 0,
-                  fields: ['func_id','func_name'],
-                  data: this.rule_data
-              }),
-              mode: 'local',
-              //store: this.rule_names,
-              valueField: 'func_id',
-              displayField: 'func_name',
-              //value: 0,
-              editable: true,
-              triggerAction: 'all',
-              listeners: {
-                  blur: function(combo) {
-                    combo.store.clearFilter();
-                  }
-              }
-            });
 
-            this.tblRules = this.specSettingsBox.add({
-                xtype: 'editorgrid',
-                margins: '2 0 0 5',
-                flex: 1,
-                autoExpandColumn: 'name',
-
-                viewConfig: {
-                    emptyText: _('Add a rule...'),
-                    deferEmptyText: false
-                },
-
-                colModel: new Ext.grid.ColumnModel({
-                    columns: [{
-                        id: 'type',
-                        header: _('Type'),
-                        dataIndex: 'type',
-                        sortable: true,
-                        hideable: false,
-                        editable: true,
-                        editor: {
-                          xtype: 'combo',
-                          store: ['Tracker','Label']
-                        }
-                    },{
-                        id: 'name',
-                        header: _('Name'),
-                        dataIndex: 'name',
-                        sortable: true,
-                        hideable: false,
-                        editable: true,
-                        editor: {
-                          xtype: 'textfield'
-                        }
-                    },{
-                      id: 'op',
-                      header: _('Operator'),
-                      dataIndex: 'op',
-                      sortable: true,
-                      hideable: false,
-                      editable: true,
-                      editor: {
-                        xtype: 'combo',
-                        store: ['and','or']
-                      }
-                    },{
-                      id: 'rule',
-                      header: _('Remove Rule'),
-                      dataIndex: 'rule',
-                      sortable: true,
-                      hideable: false,
-                      editable: true,
-                      editor: this.combo,
-                      renderer: Ext.util.Format.comboRenderer(this.combo)
-                    },{
-                      id: 'min',
-                      header: _('Minimum'),
-                      dataIndex: 'min',
-                      sortable: true,
-                      hideable: false,
-                      editable: true,
-                      editor: {
-                        xtype: 'spinnerfield',
-                        value: 0.0,
-                        maxValue: 10000.0,
-                        minValue: 0.0,
-                        allowDecimals: true,
-                        decimalPrecision: 3,
-                        incrementValue: 0.5,
-                        alternateIncrementValue: 1.0
-                      }
-                    }]
-                }),
-
-                selModel: new Ext.grid.RowSelectionModel({
-                    singleSelect: false,
-                    moveEditorOnEnter: false
-                }),
-
-                store: new Ext.data.ArrayStore({
-                    autoDestroy: true,
-                    fields: [
-                      {name: 'type'},
-                      {name: 'name'},
-                      {name: 'op'},
-                      {name: 'rule'},
-                      {name: 'min'}
-                    ]
-                }),
-
-                listeners: {
-                    afteredit: function(e) {
-                        e.record.commit();
-                    }
-                },
-
-                setEmptyText: function(text) {
-                    if (this.viewReady) {
-                      this.getView().emptyText = text;
-                      this.getView().refresh();
-                    } else {
-                      Ext.apply(this.viewConfig, {emptyText: text});
-                    }
-                },
-
-                loadData: function(data) {
-                    this.getStore().loadData(data);
-                    if (this.viewReady)
-                      this.getView().updateHeaders();
-                }
-
-            });
-
-            this.rulesButtonsContainer = this.specSettingsBox.add({
-                xtype: 'container',
-                layout: 'hbox',
-                margins: '4 0 0 5',
-                items: [{
-                    xtype: 'button',
-                    text: ' Add Rule ',
-                    margins: '0 5 0 0'
-                }, {
-                    xtype: 'button',
-                    text: ' Delete Rule '
-                }]
-            });
-
-            this.rulesButtonsContainer.getComponent(0).setHandler(this.addRule, this);
-            this.rulesButtonsContainer.getComponent(1).setHandler(this.deleteRule, this);
 
           },
           scope: this
-        });
+        });*/
 
     },
 
@@ -874,6 +876,8 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
 
             var data = Deluge.plugins.autoremoveplus.util.dictToArray(rules);
 
+            this.combo.store.loadData(data);
+
           	var removeBy = this.removeByContainer.getComponent(2);
             var removeBy2 = this.removeByContainer2.getComponent(2);
             var removeByStore = removeBy.getStore();
@@ -883,6 +887,7 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
             removeBy.setValue(this.preferences['filter']);
             removeByStore2.loadData(data);
             removeBy2.setValue(this.preferences['filter2']);
+
           },
           scope: this
         });
