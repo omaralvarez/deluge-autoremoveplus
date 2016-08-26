@@ -1,3 +1,6 @@
+Version 0.6.1
+- Bugfix: Fixed error loading settings on certain WebUI configurations.
+
 Version 0.6
 - Feature: Specific settings for trackers and labels.
 - Feature: Remove only torrents from specific trackers or labels.
