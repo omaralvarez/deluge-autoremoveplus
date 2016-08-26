@@ -44,7 +44,7 @@ from setuptools import setup
 __plugin_name__ = "AutoRemovePlus"
 __author__ = "Omar Alvarez"
 __author_email__ = "osurfer3@hotmail.com"
-__version__ = "0.6"
+__version__ = "0.6.1"
 __url__ = "http://github.com/omaralvarez"
 __license__ = "GPLv3"
 __description__ = "Auto removal of torrents according to certain parameters"

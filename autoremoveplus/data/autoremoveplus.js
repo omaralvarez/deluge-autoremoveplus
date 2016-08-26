@@ -674,17 +674,6 @@ Deluge.plugins.autoremoveplus.ui.PreferencePage = Ext.extend(Ext.TabPanel, {
 
         this.waitForClient(10);
 
-        /*deluge.client.autoremoveplus.get_remove_rules({
-          success: function(rules) {
-
-            this.rule_data = Deluge.plugins.autoremoveplus.util.dictToArray(rules);
-
-
-
-          },
-          scope: this
-        });*/
-
     },
 
     //TODO destroy
