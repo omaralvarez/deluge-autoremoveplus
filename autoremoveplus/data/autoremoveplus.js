@@ -65,16 +65,28 @@ Deluge.plugins.autoremoveplus.util.arrayEquals = function(a, b) {
     for (var i = 0; i < b.length; i++) {
 
       // recurse into the nested arrays
-      if (a[i] instanceof Array && b[i] instanceof Array)
+      if (a[i] instanceof Array && b[i] instanceof Array) {
+
         if (!Deluge.plugins.autoremoveplus.util.arrayEquals(a[i], b[i]))
           return false;
-      else if(Deluge.plugins.autoremoveplus.util.isNumber(a[i])
-        && Deluge.plugins.autoremoveplus.util.isNumber(b[i]))
+
+      } else {
+
+        if(Deluge.plugins.autoremoveplus.util.isNumber(a[i])
+          && Deluge.plugins.autoremoveplus.util.isNumber(b[i])) {
+
           if (a[i].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION)
             !== b[i].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION))
             return  false;
-        else if (a[i] !== b[i])
-          return false;
+
+        } else {
+
+          if (a[i] !== b[i])
+            return false;
+
+        }
+
+      }
 
     }
 
@@ -95,20 +107,34 @@ Deluge.plugins.autoremoveplus.util.dictEquals = function(a, b) {
     var key = keysA[i];
 
     if (key in b) {
-      if (a[key] instanceof Array && b[key] instanceof Array)
-        if (!Deluge.plugins.autoremoveplus.util.arrayEquals(a[key], b[key])) {
+
+      if (a[key] instanceof Array && b[key] instanceof Array) {
+
+        if (!Deluge.plugins.autoremoveplus.util.arrayEquals(a[key], b[key]))
           return false;
-        } else {
-          if(Deluge.plugins.autoremoveplus.util.isNumber(a[key])
-            && Deluge.plugins.autoremoveplus.util.isNumber(b[key]))
-              if (a[key].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION)
-                !== b[key].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION))
-                return false;
-            else if (a[key] !== b[key])
-                return false;
+
+      } else {
+
+        if(Deluge.plugins.autoremoveplus.util.isNumber(a[key])
+          && Deluge.plugins.autoremoveplus.util.isNumber(b[key])) {
+
+          if (a[key].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION)
+            !== b[key].toFixed(Deluge.plugins.autoremoveplus.CHECK_PRECISION))
+            return false;
+
+        } else  {
+
+          if (a[key] !== b[key])
+            return false;
+
         }
+
+      }
+
     } else {
+
       return false;
+
     }
 
   }
