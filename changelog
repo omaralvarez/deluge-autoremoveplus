@@ -1,3 +1,6 @@
+Version 0.6.2
+- Bugfix: Save properly minimum values of specific remove rules in WebUI.
+
 Version 0.6.1
 - Bugfix: Fixed error loading settings on certain WebUI configurations.
 
